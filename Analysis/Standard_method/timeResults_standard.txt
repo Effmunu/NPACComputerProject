@@ -1,24 +1,48 @@
-mc_Z_10000_2_unstained - Running time: 89.449 ms
-mc_Z_10000_4_unstained - Running time: 162.758 ms
-mc_Z_10000_6_unstained - Running time: 194.525 ms
-mc_Z_10000_8_unstained - Running time: 256.404 ms
-mc_Z_10000_10_unstained - Running time: 315.719 ms
-mc_Z_10000_12_unstained - Running time: 387.585 ms
-mc_Z_10000_14_unstained - Running time: 460.484 ms
-mc_Z_10000_16_unstained - Running time: 542.385 ms
-mc_Z_10000_18_unstained - Running time: 622.757 ms
-mc_Z_10000_20_unstained - Running time: 747.179 ms
-mc_Z_10000_22_unstained - Running time: 831.142 ms
-mc_Z_10000_24_unstained - Running time: 936.435 ms
-mc_Z_10000_26_unstained - Running time: 1052.42 ms
-mc_Z_10000_28_unstained - Running time: 1153.48 ms
-mc_Z_10000_30_unstained - Running time: 1279.79 ms
-mc_Z_10000_32_unstained - Running time: 1403.16 ms
-mc_Z_10000_34_unstained - Running time: 1520.85 ms
-mc_Z_10000_36_unstained - Running time: 1793.41 ms
-mc_Z_10000_38_unstained - Running time: 1938.01 ms
-mc_Z_10000_40_unstained - Running time: 2094.96 ms
-mc_Z_10000_42_unstained - Running time: 2237.16 ms
-mc_Z_10000_44_unstained - Running time: 2387.46 ms
-mc_Z_10000_46_unstained - Running time: 2595.25 ms
-mc_Z_10000_48_unstained - Running time: 2785.13 ms
+mc Z 10000 2	stained	0.074736 s
+mc Z 10000 4	stained	0.155846 s
+mc Z 10000 6	stained	0.236586 s
+mc Z 10000 8	stained	0.29189 s
+mc Z 10000 10	stained	0.391049 s
+mc Z 10000 12	stained	0.441864 s
+mc Z 10000 14	stained	0.546717 s
+mc Z 10000 16	stained	0.642317 s
+mc Z 10000 18	stained	0.740696 s
+mc Z 10000 20	stained	0.859314 s
+mc Z 10000 22	stained	0.946406 s
+mc Z 10000 24	stained	1.08572 s
+mc Z 10000 26	stained	1.17156 s
+mc Z 10000 28	stained	1.28333 s
+mc Z 10000 30	stained	1.44622 s
+mc Z 10000 32	stained	1.58199 s
+mc Z 10000 34	stained	1.68117 s
+mc Z 10000 36	stained	1.88361 s
+mc Z 10000 38	stained	1.99936 s
+mc Z 10000 40	stained	2.11974 s
+mc Z 10000 42	stained	2.2822 s
+mc Z 10000 44	stained	2.4222 s
+mc Z 10000 46	stained	2.71714 s
+mc Z 10000 48	stained	2.79568 s
+mc Z 10000 2	unstained	0.090421 s
+mc Z 10000 4	unstained	0.159137 s
+mc Z 10000 6	unstained	0.196454 s
+mc Z 10000 8	unstained	0.253646 s
+mc Z 10000 10	unstained	0.319787 s
+mc Z 10000 12	unstained	0.382999 s
+mc Z 10000 14	unstained	0.463632 s
+mc Z 10000 16	unstained	0.554939 s
+mc Z 10000 18	unstained	0.630293 s
+mc Z 10000 20	unstained	0.747458 s
+mc Z 10000 22	unstained	0.83447 s
+mc Z 10000 24	unstained	0.936259 s
+mc Z 10000 26	unstained	1.05558 s
+mc Z 10000 28	unstained	1.154 s
+mc Z 10000 30	unstained	1.29331 s
+mc Z 10000 32	unstained	1.40258 s
+mc Z 10000 34	unstained	1.53114 s
+mc Z 10000 36	unstained	1.78001 s
+mc Z 10000 38	unstained	1.93326 s
+mc Z 10000 40	unstained	2.08661 s
+mc Z 10000 42	unstained	2.24634 s
+mc Z 10000 44	unstained	2.39272 s
+mc Z 10000 46	unstained	2.56962 s
+mc Z 10000 48	unstained	2.74242 s
