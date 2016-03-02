@@ -26,6 +26,8 @@ using namespace std;
 
 void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, int stained)
 {
+    // Measure the running time
+    const clock_t startingTime = clock();
 
     if (fChain == 0) return;
     Long64_t nentries = fChain->GetEntriesFast();
@@ -151,6 +153,13 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
         stream_out << beta_betaAlpha[i] << " " << betaer_betaAlpha[i] << endl;
     }
     stream_out.close();
+
+    // End of measure of the running time
+    fstream outputStream("timeResults_betaAlpha.txt", ios::app);
+    outputStream << type << " " << categ << " " << nbEvents << " "
+        << binning << "\t" << (stained ? "stained" : "unstained") << "\t"
+        << double(clock() - startingTime) / CLOCKS_PER_SEC << " s"<< endl;
+    outputStream.close();
 
     // Display
     TCanvas* canv3 = new TCanvas("canv3",

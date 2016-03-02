@@ -151,9 +151,9 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
 
     // End of measure of the running time
     fstream outputStream("timeResults_standard.txt", ios::app);
-    outputStream << type << "_" << categ << "_" << nbEvents << "_"
-        << binning << "_" << (stained ? "stained" : "unstained") << " - "
-        << "Running time: " << double(clock() - startingTime) * 1000. / CLOCKS_PER_SEC << " ms"<< endl;
+    outputStream << type << " " << categ << " " << nbEvents << " "
+        << binning << "\t" << (stained ? "stained" : "unstained") << "\t"
+        << double(clock() - startingTime) / CLOCKS_PER_SEC << " s"<< endl;
     outputStream.close();
 
     // Display
