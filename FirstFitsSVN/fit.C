@@ -10,7 +10,7 @@
 
 void fit()
 {
-    // Fit the truth_mass by a Breit Wigner distribution, 
+    // Fit the truth_mass by a Breit Wigner distribution,
     // and the mass (reconstructed mass) by a Voigt function.
 
     gStyle->SetLegendFillColor(kWhite);
@@ -20,10 +20,10 @@ void fit()
     gStyle->SetPadRightMargin(0.10);
     gStyle->SetPadBottomMargin(0.15);
     gStyle->SetPadLeftMargin(0.15);
-    
+
     // Retrieve histograms from file
     TFile *histFile = TFile::Open("histograms.root");
-    
+
     TH1F * truth_mass = (TH1F*)histFile->Get("truth_mass"); // True Z mass
     truth_mass->GetXaxis()->SetTitle("m_{ee} [GeV]");
     truth_mass->GetYaxis()->SetTitle("Number of events");
@@ -45,7 +45,7 @@ void fit()
     myVoigt->SetParName(1, "Mean");
     myVoigt->SetParName(2, "Gaussian Sigma");
     myVoigt->SetParName(3, "Lorentzian Width");
-    
+
     // Set initial parameter values
     myBW->SetParameter(0, 11e6);
     myBW->SetParameter(1, 90);
@@ -58,7 +58,7 @@ void fit()
     // Canvas
     TCanvas *canv = new TCanvas("canv", "Fit of the true Z mass", 1600, 600);
     canv->Divide(2, 1); // 1 row, 2 columns
-    
+
     // Plot to first pad
     canv->cd(1);
     // Fit
@@ -91,7 +91,7 @@ void fit()
     leg_reco->AddEntry(truth_mass, "Data", "F");
     leg_reco->AddEntry(myBW, "Fit", "L");
     leg_reco->Draw();
-    
+
     TPaveText* text_reco = new TPaveText(0.6, 0.7, 0.85, 0.85, "ndc");
     text_reco->SetBorderSize(0);
     text_reco->SetTextSize(0.04);
@@ -99,8 +99,7 @@ void fit()
     text_reco->AddText("Fit of the reconstructed");
     text_reco->AddText("Z mass");
     text_reco->Draw();
-    
+
     // Save image
     canv->SaveAs("Fit of the true Z mass.png");
 }
-

@@ -142,6 +142,13 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     vector<double > alpha_standard= fit_standard.GetAlphas();
     vector<double > alphaer_standard= fit_standard.GetAlphaErs();
 
+    // Export results to file (because it's looong to run...)
+    fstream stream_out( (outputPrefix + "_alphas.txt").Data(), ios::out);
+    for (int i=0; i<alpha_standard.size(); i++) {
+        stream_out << alpha_standard[i] << " " << alphaer_standard[i] << endl;
+    }
+    stream_out.close();
+
     // End of measure of the running time
     fstream outputStream("timeResults_standard.txt", ios::app);
     outputStream << type << "_" << categ << "_" << nbEvents << "_"
@@ -149,32 +156,9 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
         << "Running time: " << double(clock() - startingTime) * 1000. / CLOCKS_PER_SEC << " ms"<< endl;
     outputStream.close();
 
-/*    ///////////
-    // Display
-    ///////////
-    // Plot diff_i = alpha_i - lambda_i and diff_i_over_sigma_i (alpha_i - lambda_i) / sigma_i
-    int npar = map.getNbOfBins();
-    double x[100], diff_i[100], diff_i_over_sigma_i[100];
-    for (int i=0; i<npar; i++) {
-        x[i] = i;
-        diff_i[i] = alpha_standard[i] -
-            (stained ? (i % 2 == 0 ? 0.01 : -0.01) : 0);
-        diff_i_over_sigma_i[i] = diff_i[i] / alphaer_standard[i];
-    }
-
-    TGraph* graph = new TGraph(npar, x, diff_i);
-    TCanvas* canv = new TCanvas("canv", outputPrefix + "_diff_i", 800, 600);
-    graph->Draw("AB");
-    canv->SaveAs("fig/" + outputPrefix + "_diff_i.png", "Q");
-
-    TGraph* graph2 = new TGraph(npar, x, diff_i_over_sigma_i);
-    TCanvas* canv2 = new TCanvas("canv2",
-        outputPrefix + "_diff_i_over_sigma_i", 800, 600);
-    graph2->Draw("AB");
-    canv2->SaveAs("fig/" + outputPrefix + "_diff_i_over_sigma_i.png", "Q");
     // Display
     TCanvas* canv3 = new TCanvas("canv3",
         outputPrefix + "_InvMass", 800, 600);
     histInvMass->Draw();
-    canv3->SaveAs("fig/" + outputPrefix + "_InvMass.png", "Q");*/
+    canv3->SaveAs("fig/" + outputPrefix + "_InvMass.png", "Q");
 }
