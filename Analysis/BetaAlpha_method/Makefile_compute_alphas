@@ -1,3 +1,0 @@
-all: compute_alphas.exe
-    g++ -Wall -Wextra -pedantic compute_alphas.cxx -o compute_alphas.exe
-
