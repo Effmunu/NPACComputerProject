@@ -11,6 +11,9 @@
 # Mac stuff
 *.DS_Store
 
+# SVN files
+.svn/
+
 # Compiled Object files
 *.slo
 *.lo
