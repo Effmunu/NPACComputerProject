@@ -46,3 +46,4 @@ mc Z 10000 42	unstained	2.24634 s
 mc Z 10000 44	unstained	2.39272 s
 mc Z 10000 46	unstained	2.56962 s
 mc Z 10000 48	unstained	2.74242 s
+data Z 50000 24	unstained	5.57277 s
