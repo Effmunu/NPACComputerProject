@@ -5,7 +5,7 @@ if [ $? -ne 0 ]; then
     exit 1
 else
     for i in `seq 2 2 24`; do
-        ./bin/main mc Z 10000 $i 1
+        root -b -l -q "plot_alphas.C(\"mc\", \"Z\", \"10000\", $i, 1)"
     done;
     exit 0
 fi

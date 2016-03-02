@@ -9,6 +9,9 @@
 #include <TGraph.h>
 #include <TCanvas.h>
 #include <TPaveText.h>
+#include <TLegend.h>
+#include <TStyle.h>
+#include <TAxis.h>
 
 using namespace std;
 
@@ -49,8 +52,9 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     gStyle->SetOptTitle(0);
     gStyle->SetPadTopMargin(0.10);
     gStyle->SetPadRightMargin(0.10);
-    gStyle->SetPadBottomMargin(0.15);
-    gStyle->SetPadLeftMargin(0.15);
+    gStyle->SetPadBottomMargin(0.13);
+    gStyle->SetPadLeftMargin(0.13);
+    gStyle->SetTitleOffset(1.4, "y");
 
     // Prefix for file input and output
     TString inputPrefix = Form("%s_%s_%s_%d_%s",
@@ -135,40 +139,38 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     double* diff_i_over_sigma_i = new double[n_alpha];
     for (int i = 0; i < n_alpha; i++) {
         x[i] = i; // eta bins indices
-        diff_i[i] = alphas[i] - (i % 2 == 0 ? 0.01 : -0.01);
+        diff_i[i] = alphas[i] - (stained ? (i % 2 == 0 ? 0.01 : -0.01) : 0);
         diff_i_over_sigma_i[i] = diff_i[i] / alphaErs[i];
         //cout << "x_i: " << x[i] << "; diff_i: " << diff_i[i] << endl;
     }
 
-    TPaveText* text_diff = new TPaveText(0.6, 0.7, 0.85, 0.85, "ndc");
-    text_diff->SetBorderSize(0);
-    text_diff->SetTextSize(0.04);
-    text_diff->SetFillColor(kWhite);
-    text_diff->AddText(stained ? "#alpha_{i} - #lambda_{i}" : "#alpha_{i}");
+    TPaveText* info_text = new TPaveText(0.6, 0.73, 0.85, 0.88, "ndc");
+    info_text->SetBorderSize(0);
+    info_text->SetTextSize(0.04);
+    info_text->SetFillColor(kWhite);
+    info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), nbEvents.c_str(), (stained ? "stained" : "unstained")));
+    info_text->AddText(Form("Nb bins: %d", binning));
 
-    TPaveText* text_diff_over = new TPaveText(0.6, 0.7, 0.85, 0.85, "ndc");
-    text_diff_over->SetBorderSize(0);
-    text_diff_over->SetTextSize(0.04);
-    text_diff_over->SetFillColor(kWhite);
-    text_diff_over->AddText(stained ? "#frac{#alpha_{i} - #lambda_{i}}{#sigma_{i}}" : "#frac{#alpha_{i}}{#sigma_{i}}");
 
     TGraph* graph_diff = new TGraph(n_alpha, x, diff_i);
-    graph_diff->GetXaxis()->SetTitle("Eta bin Number");
-    graph_diff->GetYaxis()->SetTitle("alpha_i");
-    graph_diff->SetMaximum(graph_diff->GetMaximum()*1.3);
+    graph_diff->GetXaxis()->SetTitle("#eta bin Number");
+    graph_diff->GetYaxis()->SetTitle(stained ? "#alpha_{i} - #lambda_{i}" : "#alpha_{i}");
+    graph_diff->SetMaximum(graph_diff->GetYaxis()->GetXmax()*1.3);
+
     TCanvas* canv_diff = new TCanvas("canv_diff",
         inputPrefix + "_diff_i", 800, 600);
     graph_diff->Draw("AB");
-    text_diff->Draw();
+    info_text->Draw();
     canv_diff->SaveAs("fig/" + inputPrefix + "_diff_i.png", "Q");
 
     TGraph* graph_diff_over = new TGraph(n_alpha, x, diff_i_over_sigma_i);
-    graph_diff_over->GetXaxis()->SetTitle("Eta bin Number");
-    graph_diff_over->GetYaxis()->SetTitle("alpha_i");
-    graph_diff_over->SetMaximum(graph_diff_over->GetMaximum()*1.3);
+    graph_diff_over->GetXaxis()->SetTitle("#eta bin Number");
+    graph_diff_over->GetYaxis()->SetTitle(stained ? "(#alpha_{i} - #lambda_{i}) / #sigma_{i}" : "#alpha_{i} / #sigma_{i}");
+    graph_diff_over->SetMaximum(graph_diff_over->GetYaxis()->GetXmax()*1.3);
+
     TCanvas* canv_diff_over = new TCanvas("canv_diff_over",
         inputPrefix + "_diff_i_over_sigma_i", 800, 600);
     graph_diff_over->Draw("AB");
-    text_diff_over->Draw();
+    info_text->Draw();
     canv_diff_over->SaveAs("fig/" + inputPrefix + "_diff_i_over_sigma_i.png", "Q");
 }
