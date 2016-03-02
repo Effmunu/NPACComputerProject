@@ -10,6 +10,8 @@
 #include <TCanvas.h>
 #include <TLorentzVector.h>
 #include <TString.h>
+#include <TPaveText.h>
+#include <TLegend.h>
 
 //c++
 #include <time.h>
@@ -26,6 +28,15 @@ using namespace std;
 
 void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, int stained)
 {
+    gStyle->SetLegendFillColor(kWhite);
+    gStyle->SetLegendBorderSize(0);
+    gStyle->SetOptTitle(0);
+    gStyle->SetPadTopMargin(0.10);
+    gStyle->SetPadRightMargin(0.10);
+    gStyle->SetPadBottomMargin(0.13);
+    gStyle->SetPadLeftMargin(0.13);
+    gStyle->SetTitleOffset(1.4, "y");
+
     // Measure the running time
     const clock_t startingTime = clock();
 
@@ -157,8 +168,24 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     outputStream.close();
 
     // Display
-    TCanvas* canv3 = new TCanvas("canv3",
+    TPaveText* info_text = new TPaveText(0.63, 0.65, 0.88, 0.8, "ndc");
+    info_text->SetBorderSize(0);
+    info_text->SetTextSize(0.04);
+    info_text->SetFillColor(kWhite);
+    info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), nbEvents.c_str(), (stained ? "stained" : "unstained")));
+    info_text->AddText(Form("Nb bins: %d", binning));
+
+    TLegend* leg= new TLegend(0.20, 0.65, 0.45, 0.8);
+    leg->SetTextSize(0.04);
+    leg->AddEntry(histInvMass, "Data", "F");
+    leg->AddEntry(myVoigt, "Voigtian fit", "L");
+
+    histInvMass->GetXaxis()->SetTitle("m_{ee} [GeV]");
+    histInvMass->GetYaxis()->SetTitle("Number of event / 0.2 GeV");
+    TCanvas* canv = new TCanvas("canv",
         outputPrefix + "_InvMass", 800, 600);
     histInvMass->Draw();
-    canv3->SaveAs("fig/" + outputPrefix + "_InvMass.png", "Q");
+    info_text->Draw();
+    leg->Draw();
+    canv->SaveAs("fig/" + outputPrefix + "_InvMass.png", "Q");
 }
