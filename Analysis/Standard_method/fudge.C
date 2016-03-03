@@ -29,6 +29,9 @@ void fudge(string& categ, string& nbEvents, int binning)
     gStyle->SetPadLeftMargin(0.13);
     gStyle->SetTitleOffset(1.4, "y");
 
+    const double lowerBound = categ == "JPsi" ? 2.6 : 80;
+    const double higherBound = categ == "JPsi" ? 3.6 : 100;
+
     TString inputPrefix = Form("data_%s_%s", categ.c_str(), nbEvents.c_str()); // Z_50000
     TFile* inputFile = TFile::Open((inputPrefix + ".root").Data());
     TTree* inputTree = (TTree*)inputFile->Get("tuple");
@@ -51,7 +54,10 @@ void fudge(string& categ, string& nbEvents, int binning)
 
     // read MC fit parameters
     double amp_mc, mZ_mc, sigma_mc, gamma_mc;
-    TString input_mc_fitparam_string = Form("mc_%s_10000_%d_unstained_fitparam.txt", categ.c_str(), binning);
+    if (categ == "Z")
+        TString input_mc_fitparam_string = Form("mc_%s_10000_%d_unstained_fitparam.txt", categ.c_str(), binning); // Z
+    else
+        TString input_mc_fitparam_string = Form("mc_%s_50000_%d_unstained_fitparam.txt", categ.c_str(), binning); // JPSI
     cout << "Will read mc fit param from file: " << input_mc_fitparam_string.Data() << endl;
     fstream input_mc_fitparam( input_mc_fitparam_string.Data(), ios::in);
     input_mc_fitparam >> amp_mc >> mZ_mc >> sigma_mc >> gamma_mc;
@@ -71,11 +77,11 @@ void fudge(string& categ, string& nbEvents, int binning)
 
     // Histogram of invariant masses
     TH1F* histInvMass = new TH1F("histInvMass",
-        "Invariant Mass " + inputPrefix, 100, 80, 100);
+        "Invariant Mass " + inputPrefix, 100, lowerBound, higherBound);
     histInvMass->SetLineColor(kBlue);
 
     TH1F* histInvMass_cor = new TH1F("histInvMass_cor",
-        "Corrected Invariant Mass " + inputPrefix, 100, 80, 100);
+        "Corrected Invariant Mass " + inputPrefix, 100, lowerBound, higherBound);
     histInvMass->SetLineColor(kRed);
 
     // SetBranchAddresses
@@ -116,8 +122,14 @@ void fudge(string& categ, string& nbEvents, int binning)
         //========================================
         //Z events preselection
         //========================================
-        if( ele0_et<20) continue;
-        if( ele1_et<20) continue;
+        if (categ == "Z") {
+            if( ele0_et<20) continue; // Z
+            if( ele1_et<20) continue; // Z
+        }
+        else {
+            if( ele0_et<7) continue; // JPSI
+            if( ele1_et<7) continue; // JPSI
+        }
         if( fabs(ele0_eta)>2.4) continue;
         if( fabs(ele1_eta)>2.4) continue;
 
@@ -136,13 +148,12 @@ void fudge(string& categ, string& nbEvents, int binning)
         double mass_cor = ((*el0_LV_cor) + (*el1_LV_cor)).M();
 
         // Cuts on invariant mass
-        if(mass > 80 && mass < 100) {
+        if(mass > lowerBound && mass < higherBound) {
             nbUncorFilled++;
             histInvMass->Fill(mass);
         }
 
-
-        if(mass_cor > 80 && mass_cor < 100) {
+        if(mass_cor > lowerBound && mass_cor < higherBound) {
             nbCorFilled++;
             histInvMass_cor->Fill(mass_cor);
         }
@@ -158,10 +169,24 @@ void fudge(string& categ, string& nbEvents, int binning)
     // Voigt fitting function
     TF1* myVoigt = new TF1("myVoigt", "[0] * TMath::Voigt((x - [1]), [2], [3])", 80, 100);
     // Initialization of the parameters
-    myVoigt->SetParameter(0, 5000);
-    myVoigt->SetParameter(1, 91);
-    myVoigt->SetParameter(2, 0.5);
-    myVoigt->SetParameter(3, 2);
+    if (categ == "JPsi") {
+        myVoigt->SetParameter(0, 2000);
+        myVoigt->SetParameter(1, 3.);
+        myVoigt->SetParameter(2, 1);
+        myVoigt->FixParameter(3, 0);
+
+        myVoigt->SetParLimits(1, 2.6, 3.6);
+//        myVoigt->SetParLimits(3, 0, 1e-3);
+    }
+    else { // Z
+        myVoigt->SetParameter(0, 5000);
+        myVoigt->SetParameter(1, 91);
+        myVoigt->SetParameter(2, 1);
+        myVoigt->SetParameter(3, 2);
+    }
+
+    // Fit
+    histInvMass_cor->Fit("myVoigt");
 
     fstream fitparam_out( (inputPrefix + "_cor_fitparam.txt").Data(), ios::out);
     fitparam_out << myVoigt->GetParameter(0) << endl;
@@ -170,8 +195,6 @@ void fudge(string& categ, string& nbEvents, int binning)
     fitparam_out << myVoigt->GetParameter(3) << endl;
     fitparam_out.close();
 
-    // Fit
-    histInvMass_cor->Fit("myVoigt");
 //    double norm = myVoigt->GetParameter(0);
     double mZ = myVoigt->GetParameter(1);
     double sigma = myVoigt->GetParameter(2);
@@ -181,7 +204,8 @@ void fudge(string& categ, string& nbEvents, int binning)
     TCanvas* canv = new TCanvas("canv",
         inputPrefix + "_InvMass", 800, 600);
 
-    TH1F* frame = canv->DrawFrame(80., 0., 100., 1., "frameInvMass");
+//    TH1F* frame = canv->DrawFrame(80., 0., 100., 1., "frameInvMass");
+    TH1F* frame = canv->DrawFrame(lowerBound, 0., higherBound, 1., "frameInvMass");
     frame->GetYaxis()->SetTitle("m_{ee} [GeV]");
     frame->GetYaxis()->SetTitle("Number of event / 0.2 GeV");
 
