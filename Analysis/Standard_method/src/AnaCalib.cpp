@@ -147,6 +147,14 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     double sigma = myVoigt->GetParameter(2);
     double gamma = 2.4952; // PDG value
 
+    // Export fit parameters to file, to be used in other programs
+    fstream fitparam_out( (outputPrefix + "_fitparam.txt").Data(), ios::out);
+    fitparam_out << myVoigt->GetParameter(0) << endl;
+    fitparam_out << myVoigt->GetParameter(1) << endl;
+    fitparam_out << myVoigt->GetParameter(2) << endl;
+    fitparam_out << myVoigt->GetParameter(3) << endl;
+    fitparam_out.close();
+
     //initialize the fitter tool
     FitterStandard fit_standard(&map,"std");
     fit_standard.SetParameters(norm, mZ, sigma, gamma);
@@ -161,11 +169,11 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     vector<double > alphaer_standard= fit_standard.GetAlphaErs();
 
     // Export results to file (because it's looong to run...)
-    fstream stream_out( (outputPrefix + "_alphas.txt").Data(), ios::out);
+    fstream alphas_out( (outputPrefix + "_alphas.txt").Data(), ios::out);
     for (int i=0; i<alpha_standard.size(); i++) {
-        stream_out << alpha_standard[i] << " " << alphaer_standard[i] << endl;
+        alphas_out << alpha_standard[i] << " " << alphaer_standard[i] << endl;
     }
-    stream_out.close();
+    alphas_out.close();
 
 #if TIME_STUDY
     // End of measure of the running time

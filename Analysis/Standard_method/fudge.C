@@ -35,6 +35,7 @@ void fudge(string& categ, string& nbEvents, int binning)
     Long64_t nbEntries = inputTree->GetEntries();
     cout << "Tree loaded." << endl;
 
+    // read the alphas
     TString inputAplhas = inputPrefix + Form("_%d_unstained_alphas.txt", binning);
     cout << "Will read alphas from file: " << inputAplhas.Data() << endl;
     fstream stream_in( inputAplhas.Data(), ios::in);
@@ -45,7 +46,26 @@ void fudge(string& categ, string& nbEvents, int binning)
         stream_in >> alphas[i] >> dummy; // dummy corresponds to alphaErs, not useful here.
         cout << alphas[i] << endl;
     }
+    stream_in.close();
     cout << "Alphas loaded." << endl;
+
+    // read MC fit parameters
+    double amp_mc, mZ_mc, sigma_mc, gamma_mc;
+    TString input_mc_fitparam_string = Form("mc_%s_10000_%d_unstained_fitparam.txt", categ.c_str(), binning);
+    cout << "Will read mc fit param from file: " << input_mc_fitparam_string.Data() << endl;
+    fstream input_mc_fitparam( input_mc_fitparam_string.Data(), ios::in);
+    input_mc_fitparam >> amp_mc >> mZ_mc >> sigma_mc >> gamma_mc;
+    input_mc_fitparam.close();
+    cout << amp_mc << mZ_mc << sigma_mc << gamma_mc << endl;
+
+    // read data fit parameters
+    double amp_data, mZ_data, sigma_data, gamma_data;
+    TString input_data_fitparam_string = Form("data_%s_%s_%d_unstained_fitparam.txt", categ.c_str(), nbEvents.c_str(), binning);
+    cout << "Will read data fit param from file: " << input_data_fitparam_string.Data() << endl;
+    fstream input_data_fitparam( input_data_fitparam_string.Data(), ios::in);
+    input_data_fitparam >> amp_data >> mZ_data >> sigma_data >> gamma_data;
+    input_data_fitparam.close();
+    cout << amp_data << mZ_data << sigma_data << gamma_data << endl;
 
     MappingTool map(binning, -2.4,2.4);
 
@@ -143,6 +163,13 @@ void fudge(string& categ, string& nbEvents, int binning)
     myVoigt->SetParameter(2, 0.5);
     myVoigt->SetParameter(3, 2);
 
+    fstream fitparam_out( (inputPrefix + "_cor_fitparam.txt").Data(), ios::out);
+    fitparam_out << myVoigt->GetParameter(0) << endl;
+    fitparam_out << myVoigt->GetParameter(1) << endl;
+    fitparam_out << myVoigt->GetParameter(2) << endl;
+    fitparam_out << myVoigt->GetParameter(3) << endl;
+    fitparam_out.close();
+
     // Fit
     histInvMass_cor->Fit("myVoigt");
 //    double norm = myVoigt->GetParameter(0);
@@ -181,21 +208,11 @@ void fudge(string& categ, string& nbEvents, int binning)
     canv->SaveAs("fig/" + inputPrefix + "_InvMassCor.png", "Q");
 
     // Print c factors before and after
-//    const double ampMC = 1.75828e+03;
-    const double meanMC = 9.11448e+01;
-    const double sigmaMC = 8.94999e-01;
-//    const double gammaMC = 2.36396e+00;
-
-    const double ampDataRaw = 8.83974e+03;
-    const double meanDataRaw = 8.83741e+01;
-    const double sigmaDataRaw = 2.15181e+00;
-    const double gammaDataRaw = 2.33554e+00;
-
     cout << "Constant term before correction: "
-        << sqrt(2 * (sigmaDataRaw * sigmaDataRaw / meanDataRaw / meanDataRaw
-                    - sigmaMC * sigmaMC / meanMC / meanMC)) << endl;
+        << sqrt(2 * (sigma_data * sigma_data / mZ_data / mZ_data
+                    - sigma_mc * sigma_mc / mZ_mc / mZ_mc)) << endl;
     cout << "Constant term after correction: "
         << sqrt(2 * (sigma * sigma / mZ / mZ
-                    - sigmaMC * sigmaMC / meanMC / meanMC)) << endl;
+                    - sigma_mc * sigma_mc / mZ_mc / mZ_mc)) << endl;
 
 }
