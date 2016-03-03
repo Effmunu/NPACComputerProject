@@ -66,47 +66,47 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     // Get the data back
     string data_file_path = (inputPrefix + "_betas.txt").Data();
     fstream stream_in(data_file_path.c_str(), ios::in);
-    vector<double> rawBetas;
-    vector<double> rawBetaErs;
+    n_betas = binning * (binning+1) / 2;
+    double* rawBetas = new double[n_betas];
+    double* rawBetaErs = new double[n_betas];
 
     double col1, col2;
-    while(stream_in >> col1 >> col2) {
-        rawBetas.push_back(col1);
-        rawBetaErs.push_back(col2);
-//        cout << col1 << " " << col2 << endl;
+    for (int i = 0; i < n_betas; i++) {
+        stream_in >> rawBetas[i] >> rawBetaErs[i];
     }
-    const int n_alpha = (-1 + sqrt(1. + 8*rawBetas.size())) / 2;
+
+//    const int n_alpha = (-1 + sqrt(1. + 8*rawBetas.size())) / 2;
 
     ////////////////
     // Computation
     ////////////////
 
     //Initialize vectors and matrix
-    TVectorT<double> alphas(n_alpha);
-    TVectorT<double> alphaErs(n_alpha);
-    TVectorT<double> betas(n_alpha);
-    TMatrixT<double> alphasToBetas(n_alpha, n_alpha);
+    TVectorT<double> alphas(binning);
+    TVectorT<double> alphaErs(binning);
+    TVectorT<double> betas(binning);
+    TMatrixT<double> alphasToBetas(binning, binning);
 
     // betas vector:
-    for (int i=0; i<n_alpha; i++) {
+    for (int i=0; i<binning; i++) {
         double b_i = 0;
-        for (int j=0; j<n_alpha; j++) {
-            b_i += rawBetas[getLinearIndex(n_alpha, i, j)] / rawBetaErs[getLinearIndex(n_alpha, i, j)] / rawBetaErs[getLinearIndex(n_alpha, i, j)];
+        for (int j=0; j<binning; j++) {
+            b_i += rawBetas[getLinearIndex(binning, i, j)] / rawBetaErs[getLinearIndex(binning, i, j)] / rawBetaErs[getLinearIndex(binning, i, j)];
         }
         betas[i] = b_i;
     }
 
     // alphasToBetas matrix:
-    for (int i=0; i<n_alpha; i++) {
-        for (int j=0; j<n_alpha; j++) {
+    for (int i=0; i<binning; i++) {
+        for (int j=0; j<binning; j++) {
             double u_ij = 0;
-            if (fabs(rawBetas[getLinearIndex(n_alpha, i, j)]) > 0) { // If beta_ij is non zero
+            if (fabs(rawBetas[getLinearIndex(binning, i, j)]) > 0) { // If beta_ij is non zero
                 if (i != j) {
-                    alphasToBetas[i][j] = 1. / rawBetaErs[getLinearIndex(n_alpha, i, j)] / rawBetaErs[getLinearIndex(n_alpha, i, j)];
+                    alphasToBetas[i][j] = 1. / rawBetaErs[getLinearIndex(binning, i, j)] / rawBetaErs[getLinearIndex(binning, i, j)];
                 }
                 else {
-                    for (int k=0; k<n_alpha; k++) {
-                        u_ij += 1. / rawBetaErs[getLinearIndex(n_alpha, i, k)] / rawBetaErs[getLinearIndex(n_alpha, i, k)];
+                    for (int k=0; k<binning; k++) {
+                        u_ij += 1. / rawBetaErs[getLinearIndex(binning, i, k)] / rawBetaErs[getLinearIndex(binning, i, k)];
                     } // end for k
                     alphasToBetas[i][j] = u_ij;
                 }
@@ -123,10 +123,10 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
 
     alphas = betasToAlphas * betas;
 
-    for (int i = 0; i < n_alpha; i++)
+    for (int i = 0; i < binning; i++)
         alphaErs[i] = sqrt(betasToAlphas[i][i]);
 
-/*    for (int i = 0; i < n_alpha; i++) {
+/*    for (int i = 0; i < binning; i++) {
         cout << "alphas_" << i << ": " << alphas[i]
          << "\t" << "alphaErs_" << i << ": " << alphaErs[i]
          << "\t betasToAlphas[i][i]: " <<  betasToAlphas[i][i] << endl;
@@ -136,12 +136,12 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     // Plot of the results
     ///////////////////////
     // Plot diff_i = alpha_i - lambda_i and diff_i_over_sigma_i (alpha_i - lambda_i) / sigma_i
-    double* x = new double[n_alpha];
-    double* xerr = new double[n_alpha];
-    double* yerr = new double[n_alpha];
-    double* diff_i = new double[n_alpha];
-    double* diff_i_over_sigma_i = new double[n_alpha];
-    for (int i = 0; i < n_alpha; i++) {
+    double* x = new double[binning];
+    double* xerr = new double[binning];
+    double* yerr = new double[binning];
+    double* diff_i = new double[binning];
+    double* diff_i_over_sigma_i = new double[binning];
+    for (int i = 0; i < binning; i++) {
         x[i] = i; // eta bins indices
         xerr[i] = 0.5; // bin number +/- 0.5
         yerr[i] = alphaErs[i];
@@ -158,7 +158,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), nbEvents.c_str(), (stained ? "stained" : "unstained")));
     info_text->AddText(Form("Nb bins: %d", binning));
 
-    TGraphErrors* graph_diff = new TGraphErrors(n_alpha, x, diff_i, xerr, yerr);
+    TGraphErrors* graph_diff = new TGraphErrors(binning, x, diff_i, xerr, yerr);
     graph_diff->GetXaxis()->SetTitle("#eta bin Number");
     graph_diff->GetYaxis()->SetTitle(stained ? "#alpha_{i} - #lambda_{i}" : "#alpha_{i}");
     graph_diff->SetMaximum(graph_diff->GetYaxis()->GetXmax()*1.3);
@@ -172,7 +172,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     line_diff->Draw();
     canv_diff->SaveAs("fig/" + inputPrefix + "_diff_i.png", "Q");
 
-    TGraph* graph_diff_over = new TGraph(n_alpha, x, diff_i_over_sigma_i);
+    TGraph* graph_diff_over = new TGraph(binning, x, diff_i_over_sigma_i);
     graph_diff_over->GetXaxis()->SetTitle("#eta bin Number");
     graph_diff_over->GetYaxis()->SetTitle(stained ? "(#alpha_{i} - #lambda_{i}) / #sigma_{i}" : "#alpha_{i} / #sigma_{i}");
     graph_diff_over->SetMaximum(graph_diff_over->GetYaxis()->GetXmax()*1.3);
