@@ -142,7 +142,7 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     myVoigt->SetParameter(3, 2);
 
     // Fit and get the sigma of the histogram
-    histInvMass->Fit("myVoigt", "Q"); // Q: quiet mode
+    histInvMass->Fit("myVoigt"); // Q: quiet mode
     double norm = myVoigt->GetParameter(0);
     double mZ = myVoigt->GetParameter(1);
     double sigma = myVoigt->GetParameter(2);
