@@ -66,11 +66,6 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     //===============================================
     // Loop over the events
     //===============================================
-    double lambda0 = 0;
-    double lambda1 = 0;
-    double st_ele0_et = 0;
-    double st_ele1_et = 0;
-
     Long64_t nbytes = 0, nb = 0;
     for (Long64_t jentry=0; jentry<nentries;jentry++)
     {
@@ -139,24 +134,37 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     // Function to get the sigma of the histogram
     TF1* myVoigt = new TF1("myVoigt", "[0] * TMath::Voigt((x - [1]), [2], [3])", 80, 100);
 
+    // Initialization of the parameters
+    // (we leave them all free to get a meaningful estimation of sigma before any kind of correction)
     myVoigt->SetParameter(0, 5000);
     myVoigt->SetParameter(1, 91);
     myVoigt->SetParameter(2, 0.5);
     myVoigt->SetParameter(3, 2);
 
-    // Fit and get the sigma of the histogram
+    // Fit and get the amplitude and sigma of the histogram
     histInvMass->Fit("myVoigt"); // Q: quiet mode
     double norm = myVoigt->GetParameter(0);
-    double mZ = myVoigt->GetParameter(1);
+    double mZ = 91.1876; // PDG value
     double sigma = myVoigt->GetParameter(2);
-    double gamma = myVoigt->GetParameter(3);
+    double gamma = 2.4952; // PDG value
+
+    // Export fit parameters to file, to be used in other programs
+    fstream fitparam_out( (outputPrefix + "_fitparam.txt").Data(), ios::out);
+    fitparam_out << myVoigt->GetParameter(0) << endl;
+    fitparam_out << myVoigt->GetParameter(1) << endl;
+    fitparam_out << myVoigt->GetParameter(2) << endl;
+    fitparam_out << myVoigt->GetParameter(3) << endl;
+    fitparam_out.close();
 
     //initialize the fitter tool
     FitterBetaAlpha fit_betaAlpha(&map,"std");
     fit_betaAlpha.SetParameters(norm, mZ, sigma, gamma);
+    // /!\ Remark: For the determination of the alphas, the mean and gamma of the distribution are fixed to the PDG values for Z!
+    // The norm and sigma are fixed from the fit just above on the original distribution, leaving all parameters free to have a meaningful fit.
     fit_betaAlpha.SetData(&infoVector);
     // do the fit
     fit_betaAlpha.Execute();
+
     //get the results
     vector<double > beta_betaAlpha= fit_betaAlpha.GetBetas();
     vector<double > betaer_betaAlpha= fit_betaAlpha.GetBetaErs();

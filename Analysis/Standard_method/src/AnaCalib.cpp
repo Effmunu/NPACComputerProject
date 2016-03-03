@@ -133,6 +133,7 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     //========================================
     // Function to get the sigma of the histogram
     TF1* myVoigt = new TF1("myVoigt", "[0] * TMath::Voigt((x - [1]), [2], [3])", 80, 100);
+
     // Initialization of the parameters
     // (we leave them all free to get a meaningful estimation of sigma before any kind of correction)
     myVoigt->SetParameter(0, 5000);
