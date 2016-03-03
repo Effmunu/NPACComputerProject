@@ -25,6 +25,7 @@ using namespace std;
 #include "MappingTool.hpp"
 #include "FitterStandard.hpp"
 
+#define TIME_STUDY 0
 
 void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, int stained)
 {
@@ -37,8 +38,10 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     gStyle->SetPadLeftMargin(0.13);
     gStyle->SetTitleOffset(1.4, "y");
 
+#if TIME_STUDY
     // Measure the running time
     const clock_t startingTime = clock();
+#endif
 
     if (fChain == 0) return;
     Long64_t nentries = fChain->GetEntriesFast();
@@ -131,24 +134,28 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     // Function to get the sigma of the histogram
     TF1* myVoigt = new TF1("myVoigt", "[0] * TMath::Voigt((x - [1]), [2], [3])", 80, 100);
     // Initialization of the parameters
+    // (we leave them all free to get a meaningful estimation of sigma before any kind of correction)
     myVoigt->SetParameter(0, 5000);
     myVoigt->SetParameter(1, 91);
-    myVoigt->SetParameter(2, 0.5);
+    myVoigt->SetParameter(2, 1);
     myVoigt->SetParameter(3, 2);
 
-    // Fit and get the sigma of the histogram
-    histInvMass->Fit("myVoigt", "Q"); // Q: quiet mode
+    // Fit and get the amplitude and sigma of the histogram
+    histInvMass->Fit("myVoigt"); // Q: quiet mode
     double norm = myVoigt->GetParameter(0);
-    double mZ = myVoigt->GetParameter(1);
+    double mZ = 91.1876; // PDG value
     double sigma = myVoigt->GetParameter(2);
-    double gamma = myVoigt->GetParameter(3);
+    double gamma = 2.4952; // PDG value
 
     //initialize the fitter tool
     FitterStandard fit_standard(&map,"std");
     fit_standard.SetParameters(norm, mZ, sigma, gamma);
+    // /!\ Remark: For the determination of the alphas, the mean and gamma of the distribution are fixed to the PDG values for Z!
+    // The norm and sigma are fixed from the fit just above on the original distribution, leaving all parameters free to have a meaningful fit.
     fit_standard.SetData(&infoVector);
     // do the fit
     fit_standard.Execute();
+
     //get the results
     vector<double > alpha_standard= fit_standard.GetAlphas();
     vector<double > alphaer_standard= fit_standard.GetAlphaErs();
@@ -160,12 +167,14 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     }
     stream_out.close();
 
+#if TIME_STUDY
     // End of measure of the running time
     fstream outputStream("timeResults_standard.txt", ios::app);
     outputStream << type << " " << categ << " " << nbEvents << " "
         << binning << "\t" << (stained ? "stained" : "unstained") << "\t"
         << double(clock() - startingTime) / CLOCKS_PER_SEC << " s"<< endl;
     outputStream.close();
+#endif
 
     // Display
     TPaveText* info_text = new TPaveText(0.63, 0.65, 0.88, 0.8, "ndc");

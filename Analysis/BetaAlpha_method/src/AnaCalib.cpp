@@ -25,6 +25,7 @@ using namespace std;
 #include "MappingTool.hpp"
 #include "FitterBetaAlpha.hpp"
 
+#define TIME_STUDY 0
 
 void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, int stained)
 {
@@ -37,8 +38,10 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     gStyle->SetPadLeftMargin(0.13);
     gStyle->SetTitleOffset(1.4, "y");
 
+#if TIME_STUDY
     // Measure the running time
     const clock_t startingTime = clock();
+#endif
 
     if (fChain == 0) return;
     Long64_t nentries = fChain->GetEntriesFast();
@@ -165,12 +168,14 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     }
     stream_out.close();
 
+#if TIME_STUDY
     // End of measure of the running time
     fstream outputStream("timeResults_betaAlpha.txt", ios::app);
     outputStream << type << " " << categ << " " << nbEvents << " "
         << binning << "\t" << (stained ? "stained" : "unstained") << "\t"
         << double(clock() - startingTime) / CLOCKS_PER_SEC << " s"<< endl;
     outputStream.close();
+#endif
 
     // Display
     TPaveText* info_text = new TPaveText(0.63, 0.65, 0.88, 0.8, "ndc");
