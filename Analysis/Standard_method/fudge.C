@@ -90,9 +90,9 @@ void fudge(string& categ, string& nbEvents, int binning)
     for (Long64_t entry=0; entry<nbEntries; entry++) {
         if (entry % 1000 == 0)
             cout << "Entry: " << entry << endl;
-//cout << "before" << endl;
+
         inputTree->GetEntry(entry);
-//cout << "after" << endl;
+
         //========================================
         //Z events preselection
         //========================================
@@ -101,24 +101,19 @@ void fudge(string& categ, string& nbEvents, int binning)
         if( fabs(ele0_eta)>2.4) continue;
         if( fabs(ele1_eta)>2.4) continue;
 
-//        cout << "after cuts" << endl;
-
-        // UNCORRECTED
+        // UNCORRECTED DATA
         el0_LV->SetPtEtaPhiM(ele0_et, ele0_eta, ele0_phi, 511e-6);
         el1_LV->SetPtEtaPhiM(ele1_et, ele1_eta, ele1_phi, 511e-6);
 
         double mass = ((*el0_LV) + (*el1_LV)).M();
 
-//        cout << "after uncor computation" << endl;
-
-        // CORRECTED
+        // CORRECTED DATA (with the alphas read from file)
         el0_LV_cor->SetPtEtaPhiM(ele0_et / (1. + alphas[map.getIndex(ele0_eta)]),
             ele0_eta, ele0_phi, 511e-6);
         el1_LV_cor->SetPtEtaPhiM(ele1_et / (1. + alphas[map.getIndex(ele1_eta)]),
             ele1_eta, ele1_phi, 511e-6);
 
         double mass_cor = ((*el0_LV_cor) + (*el1_LV_cor)).M();
-//        cout << "after cor computaiton" << endl;
 
         // Cuts on invariant mass
         if(mass > 80 && mass < 100) {
@@ -126,14 +121,12 @@ void fudge(string& categ, string& nbEvents, int binning)
             histInvMass->Fill(mass);
         }
 
-//        cout << "after uncor fill" << endl;
 
         if(mass_cor > 80 && mass_cor < 100) {
             nbCorFilled++;
             histInvMass_cor->Fill(mass_cor);
         }
 
-//        cout << "after cor fill" << endl;
     }
     cout << "Loop over events finished." << endl;
     cout << "uncor filled: " << nbUncorFilled << endl;
@@ -142,7 +135,7 @@ void fudge(string& categ, string& nbEvents, int binning)
     //========================================
     //Fit
     //========================================
-    // Function to get the sigma of the histogram
+    // Voigt fitting function
     TF1* myVoigt = new TF1("myVoigt", "[0] * TMath::Voigt((x - [1]), [2], [3])", 80, 100);
     // Initialization of the parameters
     myVoigt->SetParameter(0, 5000);
@@ -150,12 +143,12 @@ void fudge(string& categ, string& nbEvents, int binning)
     myVoigt->SetParameter(2, 0.5);
     myVoigt->SetParameter(3, 2);
 
-    // Fit and get the sigma of the histogram
-    histInvMass_cor->Fit("myVoigt"); // Q: quiet mode
-    double norm = myVoigt->GetParameter(0);
+    // Fit
+    histInvMass_cor->Fit("myVoigt");
+//    double norm = myVoigt->GetParameter(0);
     double mZ = myVoigt->GetParameter(1);
     double sigma = myVoigt->GetParameter(2);
-    double gamma = myVoigt->GetParameter(3);
+//    double gamma = myVoigt->GetParameter(3);
 
     // Display
     TCanvas* canv = new TCanvas("canv",
@@ -188,10 +181,10 @@ void fudge(string& categ, string& nbEvents, int binning)
     canv->SaveAs("fig/" + inputPrefix + "_InvMassCor.png", "Q");
 
     // Print c factors before and after
-    const double ampMC = 1.75828e+03;
+//    const double ampMC = 1.75828e+03;
     const double meanMC = 9.11448e+01;
     const double sigmaMC = 8.94999e-01;
-    const double gammaMC = 2.36396e+00;
+//    const double gammaMC = 2.36396e+00;
 
     const double ampDataRaw = 8.83974e+03;
     const double meanDataRaw = 8.83741e+01;
