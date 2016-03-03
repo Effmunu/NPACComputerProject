@@ -78,7 +78,7 @@ void FitterStandard::Execute()
     //==========================================
     //Do the minimization
     //==========================================
-    minuit.SetPrintLevel(-1); // Don't produce messages
+    minuit.SetPrintLevel(0);
     minuit.Migrad();
 
     //==========================================

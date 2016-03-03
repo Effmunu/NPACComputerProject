@@ -25,9 +25,9 @@ public :
     FitterBetaAlpha(MappingTool* map=NULL,std::string name = "TOTO");
     void SetParameters(double norm, double mZ, double sigma, double gamma);
 
-    int GetLinearIndex(int i, int j); // Get linear index of triangular superior matrix from matrix indices (i,j)
-    int GetMatrixI(int k); // inverse method to get i from k
-    int GetMatrixJ(int k);// inverse method to get j from k
+    static int GetLinearIndex(int i, int j); // Get linear index of triangular superior matrix from matrix indices (i,j)
+    static int GetMatrixI(int k); // inverse method to get i from k
+    static int GetMatrixJ(int k);// inverse method to get j from k
 
     //get betas
     std::vector<double> GetBetas() {return m_Beta;}
