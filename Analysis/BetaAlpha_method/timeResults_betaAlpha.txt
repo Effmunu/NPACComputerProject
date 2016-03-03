@@ -22,3 +22,4 @@ mc Z 10000 18	stained	162.238 s
 mc Z 10000 20	stained	243.316 s
 mc Z 10000 22	stained	443.809 s
 mc Z 10000 24	stained	490.963 s
+data Z 50000 24	unstained	3117.37 s

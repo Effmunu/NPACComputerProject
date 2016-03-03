@@ -158,8 +158,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), nbEvents.c_str(), (stained ? "stained" : "unstained")));
     info_text->AddText(Form("Nb bins: %d", binning));
 
-
-    TGraph* graph_diff = new TGraph(n_alpha, x, diff_i);
+    TGraphErrors* graph_diff = new TGraphErrors(n_alpha, x, diff_i, xerr, yerr);
     graph_diff->GetXaxis()->SetTitle("#eta bin Number");
     graph_diff->GetYaxis()->SetTitle(stained ? "#alpha_{i} - #lambda_{i}" : "#alpha_{i}");
     graph_diff->SetMaximum(graph_diff->GetYaxis()->GetXmax()*1.3);
@@ -168,7 +167,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
 
     TCanvas* canv_diff = new TCanvas("canv_diff",
         inputPrefix + "_diff_i", 800, 600);
-    graph_diff->Draw("AB");
+    graph_diff->Draw("AP");
     info_text->Draw();
     line_diff->Draw();
     canv_diff->SaveAs("fig/" + inputPrefix + "_diff_i.png", "Q");
