@@ -54,7 +54,7 @@ int main(int argc, char ** argv)
         inputfilename = "input_" + type + "_" + categ + "_" + nbEvents + ".list";
         outputfilename = "output/output_" + type + "_" + categ + "_" + nbEvents
         + "_" + std::to_string(binningEta) + "_" + std::to_string(binningPhi)
-        + (stained ? "stained" : "unstained") + ".root";
+        + "_" + (stained ? "stained" : "unstained") + ".root";
     }
 
     cout << "Will read file:  " << inputfilename << endl;

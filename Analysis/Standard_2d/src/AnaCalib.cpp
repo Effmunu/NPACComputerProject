@@ -59,7 +59,7 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
     vector<InfoForFitter> infoVector;
 
     //Instanciate the mapping tool
-    MappingTool map(binningEta, -2.4, 2.4, binningPhi, 0, TMath::Pi());
+    MappingTool map(binningEta, -2.4, 2.4, binningPhi, -TMath::Pi(), TMath::Pi());
 
     // Histogram of invariant masses
     TH1F* histInvMass = new TH1F("histInvMass",

@@ -5,7 +5,7 @@
 MappingTool::MappingTool():TObject()
 {
     SetEtaBins(24, -2.4, 2.4);
-    SetPhiBins(32, 0, TMath::Pi());
+    SetPhiBins(32, -TMath::Pi(), TMath::Pi());
 }
 
 MappingTool::MappingTool(std::vector<double> etaBorders,
@@ -87,7 +87,7 @@ int MappingTool::getEtaIndex(const double &eta)
         }
     }
     if(iEta < 0 || iEta >= getNbEtaBins())
-        cout << "PRB  y=" << eta << endl;
+        cout << "PRB  eta=" << eta << endl;
 
     return iEta;
 }
@@ -102,7 +102,7 @@ int MappingTool::getPhiIndex(const double &phi)
         }
     }
     if(iPhi < 0 || iPhi >= getNbPhiBins())
-        cout << "PRB  y=" << phi << endl;
+        cout << "PRB  phi=" << phi << endl;
 
     return iPhi;
 }
