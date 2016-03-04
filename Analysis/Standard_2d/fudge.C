@@ -230,7 +230,7 @@ void fudge(string& categ, string& nbEvents, int binningEta, int binningPhi)
 //    TH1F* frame = canv->DrawFrame(80., 0., 100., 1., "frameInvMass");
     TH1F* frame = canv->DrawFrame(lowerBound, 0., higherBound, 1., "frameInvMass");
     frame->GetXaxis()->SetTitle("m_{ee} [GeV]");
-    frame->GetYaxis()->SetTitle("Number of event / 0.2 GeV");
+    frame->GetYaxis()->SetTitle(categ = "JPsi" ? "Number of events / 0.01 GeV" : "Number of event / 0.2 GeV");
 
     frame->SetMaximum(1.05 * TMath::Max(histInvMass->GetMaximum(),
         histInvMass_cor->GetMaximum()));
