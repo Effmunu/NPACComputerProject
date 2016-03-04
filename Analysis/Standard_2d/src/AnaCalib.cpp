@@ -216,7 +216,7 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
     info_text->SetTextSize(0.04);
     info_text->SetFillColor(kWhite);
     info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), nbEvents.c_str(), (stained ? "stained" : "unstained")));
-    info_text->AddText(Form("Nb bins #eta x #phi: %d x %d",
+    info_text->AddText(Form("Nb bins #eta x #phi: %dx%d",
                             binningEta, binningPhi));
 
     TLegend* leg= new TLegend(0.20, 0.65, 0.45, 0.8);
