@@ -23,10 +23,10 @@ void plot_alphas(string& type, string& categ, string& nbEvents,
     gStyle->SetOptTitle(0);
     gStyle->SetOptStat(0);
     gStyle->SetPadTopMargin(0.10);
-    gStyle->SetPadRightMargin(0.15);
+    gStyle->SetPadRightMargin(0.18);
     gStyle->SetPadBottomMargin(0.13);
-    gStyle->SetPadLeftMargin(0.13);
-    gStyle->SetTitleOffset(1.4, "y");
+    gStyle->SetPadLeftMargin(0.10);
+    gStyle->SetTitleOffset(1.4, "z");
 
     // Prefix for file input and output
     TString inputPrefix = Form("%s_%s_%s_%d_%d_%s",
@@ -52,6 +52,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents,
                                 binningPhi, -TMath::Pi(),  TMath::Pi());
     hist_diff->GetXaxis()->SetTitle("#eta");
     hist_diff->GetYaxis()->SetTitle("#phi");
+    hist_diff->GetZaxis()->SetTitle("#alpha_{i}");
 
     double** diff_i = new double*[binningEta];
     double** diff_i_over_sigma_i = new double*[binningEta];
@@ -73,7 +74,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents,
     }
 
 
-    TPaveText* info_text = new TPaveText(0.5, 0.73, 0.75, 0.88, "ndc");
+    TPaveText* info_text = new TPaveText(0.5, 0.73, 0.75, 0.83, "ndc");
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
     info_text->SetFillColorAlpha(kWhite, 0.5);
