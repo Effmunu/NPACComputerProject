@@ -36,6 +36,10 @@ void plot_alphas(string& type, string& categ, string& nbEvents,
     // Get the data back
     string data_file_path = (inputPrefix + "_alphas.txt").Data();
     fstream stream_in(data_file_path.c_str(), ios::in);
+    if (!stream_in.is_open()) {
+        cout << "Bad alpha file ! EXIT" << endl;
+        exit(1);
+    }
 
     ///////////////////////
     // Plot of the results
@@ -64,7 +68,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents,
             zerr[i][j] = col2;
             diff_i_over_sigma_i[i][j] = diff_i[i][j] / zerr[i][j];
 
-            hist_diff->SetBinContent(i, j, col1);
+            hist_diff->SetBinContent(i+1, j+1, col1); // ROOT convention for binning
         }
     }
 
@@ -81,6 +85,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents,
     TCanvas* canv_diff = new TCanvas("canv_diff",
         inputPrefix + "_diff_i", 800, 600);
     hist_diff->Draw("COLZ");
+//    hist_diff->Draw("LEGO2");
     info_text->Draw();
     canv_diff->SaveAs("fig/" + inputPrefix + "_diff_i.png", "Q");
 }
