@@ -45,6 +45,10 @@ void fudge(string& categ, string& nbEvents, int binningEta, int binningPhi)
                                             binningEta, binningPhi);
     cout << "Will read alphas from file: " << inputAplhas.Data() << endl;
     fstream stream_in( inputAplhas.Data(), ios::in);
+    if (!stream_in.is_open()) {
+        cout << "Bad alpha file ! EXIT" << endl;
+        exit(1);
+    }
 
     double* alphas = new double[binningEta * binningPhi];
     double dummy;
@@ -62,12 +66,16 @@ void fudge(string& categ, string& nbEvents, int binningEta, int binningPhi)
     double amp_mc, mZ_mc, sigma_mc, gamma_mc;
     TString input_mc_fitparam_string;
     if (categ == "Z")
-        input_mc_fitparam_string = Form("mc_%s_10000_%d_%d_unstained_fitparam.txt", categ.c_str(), binningEta, binningPhi); // Z
+        input_mc_fitparam_string = Form("mc_%s_200000_%d_%d_unstained_fitparam.txt", categ.c_str(), binningEta, binningPhi); // Z
     else
         input_mc_fitparam_string = Form("mc_%s_50000_%d_%d_unstained_fitparam.txt", categ.c_str(), binningEta, binningPhi); // JPSI
     cout << "Will read mc fit param from file: "
         << input_mc_fitparam_string.Data() << endl;
     fstream input_mc_fitparam( input_mc_fitparam_string.Data(), ios::in);
+    if (!input_mc_fitparam.is_open()) {
+        cout << "Bad MC fit parameters file ! EXIT" << endl;
+        exit(1);
+    }
     input_mc_fitparam >> amp_mc >> mZ_mc >> sigma_mc >> gamma_mc;
     input_mc_fitparam.close();
     cout << amp_mc << " " << mZ_mc << " " << sigma_mc << " " << gamma_mc << endl;
@@ -78,6 +86,10 @@ void fudge(string& categ, string& nbEvents, int binningEta, int binningPhi)
             nbEvents.c_str(), binningEta, binningPhi);
     cout << "Will read data fit param from file: " << input_data_fitparam_string.Data() << endl;
     fstream input_data_fitparam( input_data_fitparam_string.Data(), ios::in);
+    if (!input_data_fitparam.is_open()) {
+        cout << "Bad Data fit parameters file ! EXIT" << endl;
+        exit(1);
+    }
     input_data_fitparam >> amp_data >> mZ_data >> sigma_data >> gamma_data;
     input_data_fitparam.close();
     cout << amp_data << " " << mZ_data << " " << sigma_data << " " << gamma_data << endl;
@@ -213,7 +225,7 @@ void fudge(string& categ, string& nbEvents, int binningEta, int binningPhi)
 
 //    TH1F* frame = canv->DrawFrame(80., 0., 100., 1., "frameInvMass");
     TH1F* frame = canv->DrawFrame(lowerBound, 0., higherBound, 1., "frameInvMass");
-    frame->GetYaxis()->SetTitle("m_{ee} [GeV]");
+    frame->GetXaxis()->SetTitle("m_{ee} [GeV]");
     frame->GetYaxis()->SetTitle("Number of event / 0.2 GeV");
 
     frame->SetMaximum(1.05 * TMath::Max(histInvMass->GetMaximum(),
