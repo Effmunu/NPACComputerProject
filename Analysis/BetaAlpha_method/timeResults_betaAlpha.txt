@@ -23,3 +23,11 @@ mc Z 10000 20	stained	243.316 s
 mc Z 10000 22	stained	443.809 s
 mc Z 10000 24	stained	490.963 s
 data Z 50000 24	unstained	3117.37 s
+mc Z 10000 24	unstained	629.184 s
+mc Z 10000 24	unstained	652.006 s
+mc Z 10000 24	unstained	650.989 s
+mc Z 10000 24	unstained	666.938 s
+mc Z 10000 24	unstained	667.95 s
+mc Z 10000 24	unstained	664.342 s
+data JPsi 50000 24	unstained	113.98 s
+mc JPsi 50000 24	unstained	125.758 s

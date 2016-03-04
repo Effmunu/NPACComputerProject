@@ -67,7 +67,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     // Get the data back
     string data_file_path = (inputPrefix + "_betas.txt").Data();
     fstream stream_in(data_file_path.c_str(), ios::in);
-    n_betas = binning * (binning+1) / 2;
+    const int n_betas = binning * (binning+1) / 2;
     double* rawBetas = new double[n_betas];
     double* rawBetaErs = new double[n_betas];
 
@@ -132,6 +132,15 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
          << "\t" << "alphaErs_" << i << ": " << alphaErs[i]
          << "\t betasToAlphas[i][i]: " <<  betasToAlphas[i][i] << endl;
     }*/
+
+    // Export results to file (because it's looong to run...)
+    fstream alphas_out( (inputPrefix + "_alphas.txt").Data(), ios::out);
+//    for (int i=0; i<alphas.size(); i++) {
+    for (int i=0; i<binning; i++) {
+        alphas_out << alphas[i] << " " << alphaErs[i] << endl;
+    }
+    alphas_out.close();
+
 
     ///////////////////////
     // Plot of the results
