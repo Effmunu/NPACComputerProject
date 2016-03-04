@@ -44,7 +44,7 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop(std::string& type, std::string& categ, std::string& nbEvent, int binning=24, int stained=0);
+   virtual void     Loop(std::string& type, std::string& categ, std::string& nbEvent, int binning=24, int stained=0, Long64_t nbEntriesToRead=10000);
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };

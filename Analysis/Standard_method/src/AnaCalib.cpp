@@ -25,15 +25,15 @@ using namespace std;
 #include "MappingTool.hpp"
 #include "FitterStandard.hpp"
 
-#define TIME_STUDY 0
+#define TIME_STUDY 1
 
-void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, int stained)
+void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, int stained, Long64_t nbEntriesToRead)
 {
     gStyle->SetLegendFillColor(kWhite);
     gStyle->SetLegendBorderSize(0);
     gStyle->SetOptTitle(0);
     gStyle->SetPadTopMargin(0.10);
-    gStyle->SetPadRightMargin(0.10);
+    gStyle->SetPadRightMargin(0.08);
     gStyle->SetPadBottomMargin(0.13);
     gStyle->SetPadLeftMargin(0.13);
     gStyle->SetTitleOffset(1.4, "y");
@@ -50,9 +50,9 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     Long64_t nentries = fChain->GetEntriesFast();
 
     // Prefix for file output
-    TString outputPrefix = Form("%s_%s_%s_%d_%s",
+    TString outputPrefix = Form("%s_%s_%s_%d_%s_%lld",
         type.c_str(), categ.c_str(), nbEvents.c_str(), binning,
-        stained ? "stained" : "unstained");
+        stained ? "stained" : "unstained", nbEntriesToRead);
 
     //data vector
     vector<InfoForFitter> infoVector;
@@ -146,6 +146,11 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
         lowerBound, higherBound); // JPSI
 
     // Initialization of the parameters
+    myVoigt->SetParName(0, "Amp");
+    myVoigt->SetParName(1, "Mean");
+    myVoigt->SetParName(2, "Sigma");
+    myVoigt->SetParName(3, "Gamma");
+
     // (we leave them all free to get a meaningful estimation of sigma
     // before any kind of correction)
     if (categ == "JPsi") {
@@ -206,19 +211,32 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     fstream outputStream("timeResults_standard.txt", ios::app);
     outputStream << type << " " << categ << " " << nbEvents << " "
         << binning << "\t" << (stained ? "stained" : "unstained") << "\t"
-        << double(clock() - startingTime) / CLOCKS_PER_SEC << " s"<< endl;
+        << nbEntriesToRead << "\t"
+        << double(clock() - startingTime) / CLOCKS_PER_SEC << " s" << endl;
     outputStream.close();
 #endif
 
     // Display
-    TPaveText* info_text = new TPaveText(0.63, 0.65, 0.88, 0.8, "ndc");
+    TPaveText* info_text = new TPaveText(0.70, 0.52, 0.92, 0.82, "ndc");
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
-    info_text->SetFillColor(kWhite);
-    info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), nbEvents.c_str(), (stained ? "stained" : "unstained")));
+    info_text->SetTextAlign(32);
+    info_text->SetFillColorAlpha(kWhite, 0.5);
+    info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(),
+                    nbEvents.c_str(), (stained ? "stained" : "unstained")));
     info_text->AddText(Form("Nb bins: %d", binning));
+    info_text->AddText(Form("Nb bins %d", binning));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(0),
+                                myVoigt->GetParameter(0)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(1),
+                                myVoigt->GetParameter(1)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(2),
+                                myVoigt->GetParameter(2)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(3),
+                                myVoigt->GetParameter(3)));
 
-    TLegend* leg= new TLegend(0.20, 0.65, 0.45, 0.8);
+    TLegend* leg= new TLegend(0.15, 0.73, 0.35, 0.83);
+    leg->SetFillColorAlpha(kWhite, 0.5);
     leg->SetTextSize(0.04);
     leg->AddEntry(histInvMass, "Data", "F");
     leg->AddEntry(myVoigt, "Voigtian fit", "L");

@@ -41,7 +41,7 @@ int main(int argc, char ** argv)
     string outputfilename =  "output.root";
     int binning = 24;
     int stained = 0;
-    Long64_t nbEntriesToRead = itoa(nbEvents);
+    Long64_t nbEntriesToRead = std::atoi(nbEvents.c_str());
 
     if (argc > 5) {
         type = argv[1];
@@ -56,7 +56,7 @@ int main(int argc, char ** argv)
         + (stained ? "stained" : "unstained") + ".root";
     }
     if (argc > 6) {
-        nbEntriesToRead = itoa(argv[6]);
+        nbEntriesToRead = std::atoi(argv[6]);
         outputfilename = "output/output_" + type + "_" + categ + "_" + nbEvents
         + "_" + std::to_string(binning) + "_"
         + (stained ? "stained" : "unstained") + std::to_string(nbEntriesToRead)
@@ -65,6 +65,7 @@ int main(int argc, char ** argv)
 
     cout << "Will read file:  " << inputfilename << endl;
     cout << "Will write file: " << outputfilename << endl;
+    cout << "Will read " << nbEntriesToRead << " entries" << endl;
 
     // tree name
     string TreeName       =  "tuple";

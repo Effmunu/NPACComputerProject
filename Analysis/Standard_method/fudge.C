@@ -19,13 +19,13 @@
 
 using namespace std;
 
-void fudge(string& categ, string& nbEvents, int binning)
+void fudge(string& categ, string& nbEvents, int binning, Long64_t nbEntriesToRead)
 {
     gStyle->SetLegendFillColor(kWhite);
     gStyle->SetLegendBorderSize(0);
     gStyle->SetOptTitle(0);
     gStyle->SetPadTopMargin(0.10);
-    gStyle->SetPadRightMargin(0.10);
+    gStyle->SetPadRightMargin(0.08);
     gStyle->SetPadBottomMargin(0.13);
     gStyle->SetPadLeftMargin(0.13);
     gStyle->SetTitleOffset(1.4, "y");
@@ -40,9 +40,14 @@ void fudge(string& categ, string& nbEvents, int binning)
     cout << "Tree loaded." << endl;
 
     // read the alphas
-    TString inputAplhas = inputPrefix + Form("_%d_unstained_alphas.txt", binning);
+    TString inputAplhas = inputPrefix + Form("_%d_unstained_%lld_alphas.txt",
+                            binning, nbEntriesToRead);
     cout << "Will read alphas from file: " << inputAplhas.Data() << endl;
     fstream stream_in( inputAplhas.Data(), ios::in);
+    if (!stream_in.is_open()) {
+        cout << "Bad alpha file ! EXIT" << endl;
+        exit(1);
+    }
 
     double* alphas = new double[binning];
     double dummy;
@@ -57,20 +62,31 @@ void fudge(string& categ, string& nbEvents, int binning)
     double amp_mc, mZ_mc, sigma_mc, gamma_mc;
     TString input_mc_fitparam_string;
     if (categ == "Z")
-        input_mc_fitparam_string = Form("mc_%s_10000_%d_unstained_fitparam.txt", categ.c_str(), binning); // Z
+        input_mc_fitparam_string = Form("mc_%s_10000_%d_unstained_%lld_fitparam.txt",
+                                categ.c_str(), binning, nbEntriesToRead); // Z
     else
-        input_mc_fitparam_string = Form("mc_%s_50000_%d_unstained_fitparam.txt", categ.c_str(), binning); // JPSI
+        input_mc_fitparam_string = Form("mc_%s_50000_%d_unstained_%lld_fitparam.txt",
+                                categ.c_str(), binning, nbEntriesToRead); // JPSI
     cout << "Will read mc fit param from file: " << input_mc_fitparam_string.Data() << endl;
     fstream input_mc_fitparam( input_mc_fitparam_string.Data(), ios::in);
+    if (!input_mc_fitparam.is_open()) {
+        cout << "Bad MC fit parameters file ! EXIT" << endl;
+        exit(1);
+    }
     input_mc_fitparam >> amp_mc >> mZ_mc >> sigma_mc >> gamma_mc;
     input_mc_fitparam.close();
     cout << amp_mc << " " << mZ_mc << " " << sigma_mc << " " << gamma_mc << endl;
 
     // read data fit parameters
     double amp_data, mZ_data, sigma_data, gamma_data;
-    TString input_data_fitparam_string = Form("data_%s_%s_%d_unstained_fitparam.txt", categ.c_str(), nbEvents.c_str(), binning);
+    TString input_data_fitparam_string = Form("data_%s_%s_%d_unstained_%lld_fitparam.txt",
+                        categ.c_str(), nbEvents.c_str(), binning, nbEntriesToRead);
     cout << "Will read data fit param from file: " << input_data_fitparam_string.Data() << endl;
     fstream input_data_fitparam( input_data_fitparam_string.Data(), ios::in);
+    if (!input_data_fitparam.is_open()) {
+        cout << "Bad Data fit parameters file ! EXIT" << endl;
+        exit(1);
+    }
     input_data_fitparam >> amp_data >> mZ_data >> sigma_data >> gamma_data;
     input_data_fitparam.close();
     cout << amp_data << " " << mZ_data << " " << sigma_data << " " << gamma_data << endl;
@@ -171,6 +187,10 @@ void fudge(string& categ, string& nbEvents, int binning)
     // Voigt fitting function
     TF1* myVoigt = new TF1("myVoigt", "[0] * TMath::Voigt((x - [1]), [2], [3])", 80, 100);
     // Initialization of the parameters
+    myVoigt->SetParName(0, "Amp");
+    myVoigt->SetParName(1, "Mean");
+    myVoigt->SetParName(2, "Sigma");
+    myVoigt->SetParName(3, "Gamma");
     if (categ == "JPsi") {
         myVoigt->SetParameter(0, 2000);
         myVoigt->SetParameter(1, 3.);
@@ -209,20 +229,30 @@ void fudge(string& categ, string& nbEvents, int binning)
 //    TH1F* frame = canv->DrawFrame(80., 0., 100., 1., "frameInvMass");
     TH1F* frame = canv->DrawFrame(lowerBound, 0., higherBound, 1., "frameInvMass");
     frame->GetXaxis()->SetTitle("m_{ee} [GeV]");
-    frame->GetYaxis()->SetTitle("Number of event / 0.2 GeV");
+    frame->GetYaxis()->SetTitle(categ == "JPsi" ? "Number of events / 0.01 GeV" : "Number of event / 0.2 GeV");
 
     frame->SetMaximum(1.05 * TMath::Max(histInvMass->GetMaximum(),
         histInvMass_cor->GetMaximum()));
 
-    TPaveText* info_text = new TPaveText(0.63, 0.65, 0.88, 0.8, "ndc");
+    TPaveText* info_text = new TPaveText(0.7, 0.58, 0.92, 0.88, "ndc");
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
-    info_text->SetFillColor(kWhite);
+    info_text->SetTextAlign(32);
+    info_text->SetFillColorAlpha(kWhite, 0.5);
     info_text->AddText(Form("data %s %s", categ.c_str(), nbEvents.c_str()));
-    info_text->AddText(Form("Nb bins: %d", binning));
+    info_text->AddText(Form("Nb bins %d", binning));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(0),
+                                myVoigt->GetParameter(0)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(1),
+                                myVoigt->GetParameter(1)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(2),
+                                myVoigt->GetParameter(2)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(3),
+                                myVoigt->GetParameter(3)));
 
-    TLegend* leg = new TLegend(0.20, 0.65, 0.45, 0.8);
+    TLegend* leg = new TLegend(0.15, 0.73, 0.40, 0.88);
     leg->SetTextSize(0.04);
+    leg->SetFillColorAlpha(kWhite, 0.5);
     leg->AddEntry(histInvMass, "Data", "F");
     leg->AddEntry(histInvMass_cor, "Cor. Data", "F");
     leg->AddEntry(myVoigt, "Voigtian fit on Cor. Data", "L");
@@ -231,7 +261,9 @@ void fudge(string& categ, string& nbEvents, int binning)
     histInvMass_cor->Draw("same");
     info_text->Draw();
     leg->Draw();
-    canv->SaveAs("fig/" + inputPrefix + "_InvMassCor.png", "Q");
+    TString dummy_string = Form("fig/%s_%lld_InvMassCor.png", inputPrefix.Data(),  nbEntriesToRead);
+//    cout << dummy_string.Data() << endl;
+    canv->SaveAs( dummy_string.Data(), "Q");
 
     // Print c factors before and after
     cout << sigma_data << " " << mZ_data << " " << sigma_mc << " " << mZ_mc << " " << sigma << " " << mZ << endl;

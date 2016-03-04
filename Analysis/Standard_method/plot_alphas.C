@@ -17,7 +17,7 @@
 
 using namespace std;
 
-void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int stained)
+void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int stained, Long64_t nbEntriesToRead)
 {
     gStyle->SetLegendFillColor(kWhite);
     gStyle->SetLegendBorderSize(0);
@@ -29,9 +29,9 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     gStyle->SetTitleOffset(1.4, "y");
 
     // Prefix for file input and output
-    TString inputPrefix = Form("%s_%s_%s_%d_%s",
+    TString inputPrefix = Form("%s_%s_%s_%d_%s_%lld",
         type.c_str(), categ.c_str(), nbEvents.c_str(), binning,
-        stained ? "stained" : "unstained");
+        stained ? "stained" : "unstained", nbEntriesToRead);
 
     // Get the data back
     string data_file_path = (inputPrefix + "_alphas.txt").Data();
