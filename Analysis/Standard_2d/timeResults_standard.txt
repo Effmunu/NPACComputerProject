@@ -1,0 +1,8 @@
+mc Z 200000 24	32	unstained	525.25 s
+data Z 50000 24	32	unstained	696.933 s
+mc Z 200000 24	32	unstained	527.726 s
+data Z 50000 24	32	unstained	701.024 s
+mc Z 200000 24	32	unstained	527.6 s
+data Z 50000 24	32	unstained	703.054 s
+mc Z 200000 24	32	unstained	528.399 s
+data Z 50000 24	32	unstained	701.183 s
