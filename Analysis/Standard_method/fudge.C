@@ -3,6 +3,7 @@
 #include <fstream>
 #include <cstdlib>
 #include <iostream>
+#include <cmath>
 
 #include <TFile.h>
 #include <TTree.h>
@@ -54,15 +55,16 @@ void fudge(string& categ, string& nbEvents, int binning)
 
     // read MC fit parameters
     double amp_mc, mZ_mc, sigma_mc, gamma_mc;
+    TString input_mc_fitparam_string;
     if (categ == "Z")
-        TString input_mc_fitparam_string = Form("mc_%s_10000_%d_unstained_fitparam.txt", categ.c_str(), binning); // Z
+        input_mc_fitparam_string = Form("mc_%s_10000_%d_unstained_fitparam.txt", categ.c_str(), binning); // Z
     else
-        TString input_mc_fitparam_string = Form("mc_%s_50000_%d_unstained_fitparam.txt", categ.c_str(), binning); // JPSI
+        input_mc_fitparam_string = Form("mc_%s_50000_%d_unstained_fitparam.txt", categ.c_str(), binning); // JPSI
     cout << "Will read mc fit param from file: " << input_mc_fitparam_string.Data() << endl;
     fstream input_mc_fitparam( input_mc_fitparam_string.Data(), ios::in);
     input_mc_fitparam >> amp_mc >> mZ_mc >> sigma_mc >> gamma_mc;
     input_mc_fitparam.close();
-    cout << amp_mc << mZ_mc << sigma_mc << gamma_mc << endl;
+    cout << amp_mc << " " << mZ_mc << " " << sigma_mc << " " << gamma_mc << endl;
 
     // read data fit parameters
     double amp_data, mZ_data, sigma_data, gamma_data;
@@ -71,7 +73,7 @@ void fudge(string& categ, string& nbEvents, int binning)
     fstream input_data_fitparam( input_data_fitparam_string.Data(), ios::in);
     input_data_fitparam >> amp_data >> mZ_data >> sigma_data >> gamma_data;
     input_data_fitparam.close();
-    cout << amp_data << mZ_data << sigma_data << gamma_data << endl;
+    cout << amp_data << " " << mZ_data << " " << sigma_data << " " << gamma_data << endl;
 
     MappingTool map(binning, -2.4,2.4);
 
@@ -173,7 +175,7 @@ void fudge(string& categ, string& nbEvents, int binning)
         myVoigt->SetParameter(0, 2000);
         myVoigt->SetParameter(1, 3.);
         myVoigt->SetParameter(2, 1);
-        myVoigt->FixParameter(3, 0);
+        myVoigt->FixParameter(3, 0); // Fit with a gaussian for J/Psi, not a GBW
 
         myVoigt->SetParLimits(1, 2.6, 3.6);
 //        myVoigt->SetParLimits(3, 0, 1e-3);
@@ -232,6 +234,8 @@ void fudge(string& categ, string& nbEvents, int binning)
     canv->SaveAs("fig/" + inputPrefix + "_InvMassCor.png", "Q");
 
     // Print c factors before and after
+    cout << sigma_data << " " << mZ_data << " " << sigma_mc << " " << mZ_mc << " " << sigma << " " << mZ << endl;
+
     cout << "Constant term before correction: "
         << sqrt(2 * (sigma_data * sigma_data / mZ_data / mZ_data
                     - sigma_mc * sigma_mc / mZ_mc / mZ_mc)) << endl;

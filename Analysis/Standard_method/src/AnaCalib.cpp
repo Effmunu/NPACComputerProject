@@ -152,7 +152,7 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
         myVoigt->SetParameter(0, 2000);
         myVoigt->SetParameter(1, 3.);
         myVoigt->SetParameter(2, 1);
-        myVoigt->FixParameter(3, 0);
+        myVoigt->FixParameter(3, 0); // Fit with a gaussian for J/Psi, not a GBW
 
         myVoigt->SetParLimits(1, 2.6, 3.6);
 //        myVoigt->SetParLimits(3, 0, 1e-3);
