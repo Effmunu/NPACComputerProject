@@ -16,10 +16,11 @@
 #include <TCanvas.h>
 #include <TLegend.h>
 #include <TPaveText.h>
+#include <TMath.h>
 
 using namespace std;
 
-void fudge(string& categ, string& nbEvents, int binning)
+void fudge(string& categ, string& nbEvents, int binningEta, int binningPhi)
 {
     gStyle->SetLegendFillColor(kWhite);
     gStyle->SetLegendBorderSize(0);
@@ -40,15 +41,19 @@ void fudge(string& categ, string& nbEvents, int binning)
     cout << "Tree loaded." << endl;
 
     // read the alphas
-    TString inputAplhas = inputPrefix + Form("_%d_unstained_alphas.txt", binning);
+    TString inputAplhas = inputPrefix + Form("_%d_%d_unstained_alphas.txt",
+                                            binningEta, binningPhi);
     cout << "Will read alphas from file: " << inputAplhas.Data() << endl;
     fstream stream_in( inputAplhas.Data(), ios::in);
 
-    double* alphas = new double[binning];
+    double* alphas = new double[binningEta * binningPhi];
     double dummy;
-    for (int i = 0; i < binning; i++) {
-        stream_in >> alphas[i] >> dummy; // dummy corresponds to alphaErs, not useful here.
-        cout << alphas[i] << endl;
+    for (int i = 0; i < binningEta; i++) {
+        for (int j = 0; j < binningPhi; j++) {
+            stream_in >> alphas[i*binningPhi + j] >> dummy; // dummy corresponds to alphaErs, not useful here.
+            cout << "alpha " << i*binningPhi + j << ": "
+                << alphas[i*binningPhi + j] << endl;
+        }
     }
     stream_in.close();
     cout << "Alphas loaded." << endl;
@@ -57,10 +62,11 @@ void fudge(string& categ, string& nbEvents, int binning)
     double amp_mc, mZ_mc, sigma_mc, gamma_mc;
     TString input_mc_fitparam_string;
     if (categ == "Z")
-        input_mc_fitparam_string = Form("mc_%s_10000_%d_unstained_fitparam.txt", categ.c_str(), binning); // Z
+        input_mc_fitparam_string = Form("mc_%s_10000_%d_%d_unstained_fitparam.txt", categ.c_str(), binningEta, binningPhi); // Z
     else
-        input_mc_fitparam_string = Form("mc_%s_50000_%d_unstained_fitparam.txt", categ.c_str(), binning); // JPSI
-    cout << "Will read mc fit param from file: " << input_mc_fitparam_string.Data() << endl;
+        input_mc_fitparam_string = Form("mc_%s_50000_%d_%d_unstained_fitparam.txt", categ.c_str(), binningEta, binningPhi); // JPSI
+    cout << "Will read mc fit param from file: "
+        << input_mc_fitparam_string.Data() << endl;
     fstream input_mc_fitparam( input_mc_fitparam_string.Data(), ios::in);
     input_mc_fitparam >> amp_mc >> mZ_mc >> sigma_mc >> gamma_mc;
     input_mc_fitparam.close();
@@ -68,14 +74,15 @@ void fudge(string& categ, string& nbEvents, int binning)
 
     // read data fit parameters
     double amp_data, mZ_data, sigma_data, gamma_data;
-    TString input_data_fitparam_string = Form("data_%s_%s_%d_unstained_fitparam.txt", categ.c_str(), nbEvents.c_str(), binning);
+    TString input_data_fitparam_string = Form("data_%s_%s_%d_%d_unstained_fitparam.txt", categ.c_str(),
+            nbEvents.c_str(), binningEta, binningPhi);
     cout << "Will read data fit param from file: " << input_data_fitparam_string.Data() << endl;
     fstream input_data_fitparam( input_data_fitparam_string.Data(), ios::in);
     input_data_fitparam >> amp_data >> mZ_data >> sigma_data >> gamma_data;
     input_data_fitparam.close();
     cout << amp_data << " " << mZ_data << " " << sigma_data << " " << gamma_data << endl;
 
-    MappingTool map(binning, -2.4,2.4);
+    MappingTool map(binningEta, -2.4, 2.4, binningPhi, -TMath::Pi(), TMath::Pi());
 
     // Histogram of invariant masses
     TH1F* histInvMass = new TH1F("histInvMass",
@@ -142,10 +149,8 @@ void fudge(string& categ, string& nbEvents, int binning)
         double mass = ((*el0_LV) + (*el1_LV)).M();
 
         // CORRECTED DATA (with the alphas read from file)
-        el0_LV_cor->SetPtEtaPhiM(ele0_et / (1. + alphas[map.getIndex(ele0_eta)]),
-            ele0_eta, ele0_phi, 511e-6);
-        el1_LV_cor->SetPtEtaPhiM(ele1_et / (1. + alphas[map.getIndex(ele1_eta)]),
-            ele1_eta, ele1_phi, 511e-6);
+        el0_LV_cor->SetPtEtaPhiM(ele0_et / (1. + alphas[map.getIndex(ele0_eta, ele0_phi)]), ele0_eta, ele0_phi, 511e-6);
+        el1_LV_cor->SetPtEtaPhiM(ele1_et / (1. + alphas[map.getIndex(ele1_eta, ele1_phi)]), ele1_eta, ele1_phi, 511e-6);
 
         double mass_cor = ((*el0_LV_cor) + (*el1_LV_cor)).M();
 
@@ -219,7 +224,8 @@ void fudge(string& categ, string& nbEvents, int binning)
     info_text->SetTextSize(0.04);
     info_text->SetFillColor(kWhite);
     info_text->AddText(Form("data %s %s", categ.c_str(), nbEvents.c_str()));
-    info_text->AddText(Form("Nb bins: %d", binning));
+    info_text->AddText(Form("Nb bins #eta x #phi: %dx%d",
+                            binningEta, binningPhi));
 
     TLegend* leg = new TLegend(0.20, 0.65, 0.45, 0.8);
     leg->SetTextSize(0.04);
@@ -234,7 +240,7 @@ void fudge(string& categ, string& nbEvents, int binning)
     canv->SaveAs("fig/" + inputPrefix + "_InvMassCor.png", "Q");
 
     // Print c factors before and after
-    cout << sigma_data << " " << mZ_data << " " << sigma_mc << " " << mZ_mc << " " << sigma << " " << mZ << endl;
+//    cout << sigma_data << " " << mZ_data << " " << sigma_mc << " " << mZ_mc << " " << sigma << " " << mZ << endl;
 
     cout << "Constant term before correction: "
         << sqrt(2 * (sigma_data * sigma_data / mZ_data / mZ_data

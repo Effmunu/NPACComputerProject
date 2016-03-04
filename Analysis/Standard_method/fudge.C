@@ -208,7 +208,7 @@ void fudge(string& categ, string& nbEvents, int binning)
 
 //    TH1F* frame = canv->DrawFrame(80., 0., 100., 1., "frameInvMass");
     TH1F* frame = canv->DrawFrame(lowerBound, 0., higherBound, 1., "frameInvMass");
-    frame->GetYaxis()->SetTitle("m_{ee} [GeV]");
+    frame->GetXaxis()->SetTitle("m_{ee} [GeV]");
     frame->GetYaxis()->SetTitle("Number of event / 0.2 GeV");
 
     frame->SetMaximum(1.05 * TMath::Max(histInvMass->GetMaximum(),
