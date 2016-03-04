@@ -25,7 +25,7 @@ using namespace std;
 #include "MappingTool.hpp"
 #include "FitterStandard.hpp"
 
-#define TIME_STUDY 0
+#define TIME_STUDY 1
 
 void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
                     int binningEta, int binningPhi, int stained)
@@ -211,16 +211,17 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
 #endif
 
     // Display
-    TPaveText* info_text = new TPaveText(0.63, 0.65, 0.88, 0.8, "ndc");
+    TPaveText* info_text = new TPaveText(0.63, 0.70, 0.88, 0.85, "ndc");
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
-    info_text->SetFillColor(kWhite);
+    info_text->SetFillColorAlpha(kWhite, 0.5);
     info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), nbEvents.c_str(), (stained ? "stained" : "unstained")));
     info_text->AddText(Form("Nb bins #eta x #phi: %dx%d",
                             binningEta, binningPhi));
 
-    TLegend* leg= new TLegend(0.20, 0.65, 0.45, 0.8);
+    TLegend* leg= new TLegend(0.15, 0.70, 0.30, 0.85);
     leg->SetTextSize(0.04);
+    leg->SetFillColorAlpha(kWhite, 0.5);
     leg->AddEntry(histInvMass, "Data", "F");
     leg->AddEntry(myVoigt, "Voigtian fit", "L");
 
