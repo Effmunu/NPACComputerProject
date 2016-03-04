@@ -41,8 +41,9 @@ int main(int argc, char ** argv)
     string outputfilename =  "output.root";
     int binning = 24;
     int stained = 0;
+    Long64_t nbEntriesToRead = itoa(nbEvents);
 
-    if (argc > 4) {
+    if (argc > 5) {
         type = argv[1];
         categ = argv[2];
         nbEvents = argv[3];
@@ -53,6 +54,13 @@ int main(int argc, char ** argv)
         outputfilename = "output/output_" + type + "_" + categ + "_" + nbEvents
         + "_" + std::to_string(binning) + "_"
         + (stained ? "stained" : "unstained") + ".root";
+    }
+    if (argc > 6) {
+        nbEntriesToRead = itoa(argv[6]);
+        outputfilename = "output/output_" + type + "_" + categ + "_" + nbEvents
+        + "_" + std::to_string(binning) + "_"
+        + (stained ? "stained" : "unstained") + std::to_string(nbEntriesToRead)
+        + ".root";
     }
 
     cout << "Will read file:  " << inputfilename << endl;
@@ -101,7 +109,7 @@ int main(int argc, char ** argv)
     //do the jobs
     //=============================================
     AnaCalib ana(data);
-    ana.Loop(type, categ, nbEvents, binning, stained);
+    ana.Loop(type, categ, nbEvents, binning, stained, nbEntriesToRead);
 
     //=============================================
     //Write in file
