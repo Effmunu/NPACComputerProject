@@ -195,14 +195,12 @@ void fudge(string& categ, string& nbEvents, int binning)
     myVoigt->SetParName(3, "Gamma");
     if (categ == "JPsi") {
         myVoigt->SetParameter(0, 12);
-        myVoigt->FixParameter(1, 3.1);
-
-            cout << "coucou" << endl;
+        myVoigt->SetParameter(1, 3);
         myVoigt->SetParameter(2, 1);
         myVoigt->FixParameter(3, 0); // Fit with a gaussian for J/Psi, not a GBW
 
         myVoigt->SetParLimits(1, 2.6, 3.6);
-//        myVoigt->SetParLimits(2, 0, 5);
+        myVoigt->SetParLimits(2, 0, 0.15);
     }
     else { // Z
         myVoigt->SetParameter(0, 5000);
