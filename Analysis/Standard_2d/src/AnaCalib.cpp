@@ -34,7 +34,7 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
     gStyle->SetLegendBorderSize(0);
     gStyle->SetOptTitle(0);
     gStyle->SetPadTopMargin(0.10);
-    gStyle->SetPadRightMargin(0.10);
+    gStyle->SetPadRightMargin(0.08);
     gStyle->SetPadBottomMargin(0.13);
     gStyle->SetPadLeftMargin(0.13);
     gStyle->SetTitleOffset(1.4, "y");
@@ -145,6 +145,11 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
         lowerBound, higherBound); // JPSI
 
     // Initialization of the parameters
+    myVoigt->SetParName(0, "Amp");
+    myVoigt->SetParName(1, "Mean");
+    myVoigt->SetParName(2, "Sigma");
+    myVoigt->SetParName(3, "Gamma");
+
     // (we leave them all free to get a meaningful estimation of sigma
     // before any kind of correction)
     if (categ == "JPsi") {
@@ -206,20 +211,30 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
     outputStream << type << " " << categ << " " << nbEvents << " "
         << binningEta << "\t" << binningPhi << "\t"
         << (stained ? "stained" : "unstained") << "\t"
-        << double(clock() - startingTime) / CLOCKS_PER_SEC << " s"<< endl;
+        << double(clock() - startingTime) / CLOCKS_PER_SEC << " s" << endl;
     outputStream.close();
 #endif
 
     // Display
-    TPaveText* info_text = new TPaveText(0.63, 0.70, 0.88, 0.85, "ndc");
+    TPaveText* info_text = new TPaveText(0.70, 0.52, 0.92, 0.82, "ndc");
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
+    info_text->SetTextAlign(32);
     info_text->SetFillColorAlpha(kWhite, 0.5);
-    info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), nbEvents.c_str(), (stained ? "stained" : "unstained")));
+    info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), 
+                    nbEvents.c_str(), (stained ? "stained" : "unstained")));
     info_text->AddText(Form("Nb bins #eta x #phi: %dx%d",
                             binningEta, binningPhi));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(0),
+                                myVoigt->GetParameter(0)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(1),
+                                myVoigt->GetParameter(1)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(2),
+                                myVoigt->GetParameter(2)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(3),
+                                myVoigt->GetParameter(3)));
 
-    TLegend* leg= new TLegend(0.15, 0.70, 0.30, 0.85);
+    TLegend* leg= new TLegend(0.15, 0.73, 0.35, 0.83);
     leg->SetTextSize(0.04);
     leg->SetFillColorAlpha(kWhite, 0.5);
     leg->AddEntry(histInvMass, "Data", "F");
