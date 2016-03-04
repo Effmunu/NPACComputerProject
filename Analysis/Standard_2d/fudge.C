@@ -26,7 +26,7 @@ void fudge(string& categ, string& nbEvents, int binningEta, int binningPhi)
     gStyle->SetLegendBorderSize(0);
     gStyle->SetOptTitle(0);
     gStyle->SetPadTopMargin(0.10);
-    gStyle->SetPadRightMargin(0.10);
+    gStyle->SetPadRightMargin(0.08);
     gStyle->SetPadBottomMargin(0.13);
     gStyle->SetPadLeftMargin(0.13);
     gStyle->SetTitleOffset(1.4, "y");
@@ -188,6 +188,10 @@ void fudge(string& categ, string& nbEvents, int binningEta, int binningPhi)
     // Voigt fitting function
     TF1* myVoigt = new TF1("myVoigt", "[0] * TMath::Voigt((x - [1]), [2], [3])", 80, 100);
     // Initialization of the parameters
+    myVoigt->SetParName(0, "Amp");
+    myVoigt->SetParName(1, "Mean");
+    myVoigt->SetParName(2, "Sigma");
+    myVoigt->SetParName(3, "Gamma");
     if (categ == "JPsi") {
         myVoigt->SetParameter(0, 2000);
         myVoigt->SetParameter(1, 3.);
@@ -231,16 +235,26 @@ void fudge(string& categ, string& nbEvents, int binningEta, int binningPhi)
     frame->SetMaximum(1.05 * TMath::Max(histInvMass->GetMaximum(),
         histInvMass_cor->GetMaximum()));
 
-    TPaveText* info_text = new TPaveText(0.63, 0.65, 0.88, 0.8, "ndc");
+    TPaveText* info_text = new TPaveText(0.7, 0.58, 0.92, 0.88, "ndc");
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
-    info_text->SetFillColor(kWhite);
+    info_text->SetTextAlign(32);
+    info_text->SetFillColorAlpha(kWhite, 0.5);
     info_text->AddText(Form("data %s %s", categ.c_str(), nbEvents.c_str()));
     info_text->AddText(Form("Nb bins #eta x #phi: %dx%d",
                             binningEta, binningPhi));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(0),
+                                myVoigt->GetParameter(0)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(1),
+                                myVoigt->GetParameter(1)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(2),
+                                myVoigt->GetParameter(2)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(3),
+                                myVoigt->GetParameter(3)));
 
-    TLegend* leg = new TLegend(0.20, 0.65, 0.45, 0.8);
+    TLegend* leg = new TLegend(0.15, 0.73, 0.40, 0.88);
     leg->SetTextSize(0.04);
+    leg->SetFillColorAlpha(kWhite, 0.5);
     leg->AddEntry(histInvMass, "Data", "F");
     leg->AddEntry(histInvMass_cor, "Cor. Data", "F");
     leg->AddEntry(myVoigt, "Voigtian fit on Cor. Data", "L");
