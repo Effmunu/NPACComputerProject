@@ -42,7 +42,7 @@ int main(int argc, char ** argv)
     int binning = 24;
     int stained = 0;
 
-    if (argc > 4) {
+    if (argc > 5) {
         type = argv[1];
         categ = argv[2];
         nbEvents = argv[3];

@@ -52,8 +52,9 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
     gStyle->SetLegendFillColor(kWhite);
     gStyle->SetLegendBorderSize(0);
     gStyle->SetOptTitle(0);
+    gStyle->SetOptStat(0);
     gStyle->SetPadTopMargin(0.10);
-    gStyle->SetPadRightMargin(0.10);
+    gStyle->SetPadRightMargin(0.08);
     gStyle->SetPadBottomMargin(0.13);
     gStyle->SetPadLeftMargin(0.13);
     gStyle->SetTitleOffset(1.4, "y");
@@ -151,7 +152,7 @@ void plot_alphas(string& type, string& categ, string& nbEvents, int binning, int
         //cout << "x_i: " << x[i] << "; diff_i: " << diff_i[i] << endl;
     }
 
-    TPaveText* info_text = new TPaveText(0.6, 0.73, 0.85, 0.88, "ndc");
+    TPaveText* info_text = new TPaveText(0.6, 0.78, 0.85, 0.88, "ndc");
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
     info_text->SetFillColor(kWhite);

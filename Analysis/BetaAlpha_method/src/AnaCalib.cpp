@@ -25,18 +25,22 @@ using namespace std;
 #include "MappingTool.hpp"
 #include "FitterBetaAlpha.hpp"
 
-#define TIME_STUDY 0
+#define TIME_STUDY 1
 
-void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, int stained)
+void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
+                    int binning, int stained)
 {
     gStyle->SetLegendFillColor(kWhite);
     gStyle->SetLegendBorderSize(0);
     gStyle->SetOptTitle(0);
     gStyle->SetPadTopMargin(0.10);
-    gStyle->SetPadRightMargin(0.10);
+    gStyle->SetPadRightMargin(0.08);
     gStyle->SetPadBottomMargin(0.13);
     gStyle->SetPadLeftMargin(0.13);
     gStyle->SetTitleOffset(1.4, "y");
+
+    const double lowerBound = categ == "JPsi" ? 2.6 : 80;
+    const double higherBound = categ == "JPsi" ? 3.6 : 100;
 
 #if TIME_STUDY
     // Measure the running time
@@ -61,7 +65,7 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
 
     // Histogram of invariant masses
     TH1F* histInvMass = new TH1F("histInvMass",
-        "Invariant Mass " + outputPrefix, 100, 80, 100);
+        "Invariant Mass " + outputPrefix, 100, lowerBound, higherBound);
 
     //===============================================
     // Loop over the events
@@ -76,8 +80,14 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
         //========================================
         //Z events preselection
         //========================================
-        if( ele0_et<20) continue;
-        if( ele1_et<20) continue;
+        if (categ == "Z") {
+            if( ele0_et<20) continue; // Z
+            if( ele1_et<20) continue; // Z
+        }
+        else {
+            if( ele0_et<7) continue; // JPSI
+            if( ele1_et<7) continue; // JPSI
+        }
         if( fabs(ele0_eta)>2.4) continue;
         if( fabs(ele1_eta)>2.4) continue;
 
@@ -105,8 +115,8 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
         double mass = (el0_LV + el1_LV).M();
 
         // Cuts on invariant mass
-        if(mass < 80) continue;
-        if(mass > 100) continue;
+        if(mass < lowerBound) continue;
+        if(mass > higherBound) continue;
 
         histInvMass->Fill(mass);
 
@@ -132,21 +142,39 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     //Fit
     //========================================
     // Function to get the sigma of the histogram
-    TF1* myVoigt = new TF1("myVoigt", "[0] * TMath::Voigt((x - [1]), [2], [3])", 80, 100);
+    TF1* myVoigt = new TF1("myVoigt", "[0] * TMath::Voigt((x - [1]), [2], [3])",
+        lowerBound, higherBound);
 
     // Initialization of the parameters
-    // (we leave them all free to get a meaningful estimation of sigma before any kind of correction)
-    myVoigt->SetParameter(0, 5000);
-    myVoigt->SetParameter(1, 91);
-    myVoigt->SetParameter(2, 0.5);
-    myVoigt->SetParameter(3, 2);
+    myVoigt->SetParName(0, "Amp");
+    myVoigt->SetParName(1, "Mean");
+    myVoigt->SetParName(2, "Sigma");
+    myVoigt->SetParName(3, "Gamma");
+
+    // (we leave them all free to get a meaningful estimation of sigma
+    // before any kind of correction)
+    if (categ == "JPsi") {
+        myVoigt->SetParameter(0, 2000);
+        myVoigt->SetParameter(1, 3.);
+        myVoigt->SetParameter(2, 1);
+        myVoigt->FixParameter(3, 0); // Fit with a gaussian for J/Psi, not a GBW
+
+        myVoigt->SetParLimits(1, 2.6, 3.6);
+//        myVoigt->SetParLimits(3, 0, 1e-3);
+    }
+    else { // Z
+        myVoigt->SetParameter(0, 5000);
+        myVoigt->SetParameter(1, 91);
+        myVoigt->SetParameter(2, 1);
+        myVoigt->SetParameter(3, 2);
+    }
 
     // Fit and get the amplitude and sigma of the histogram
     histInvMass->Fit("myVoigt"); // Q: quiet mode
     double norm = myVoigt->GetParameter(0);
-    double mZ = 91.1876; // PDG value
+    double mZ = categ == "JPsi" ? 3.096 : 91.1876; // PDG value Z
     double sigma = myVoigt->GetParameter(2);
-    double gamma = 2.4952; // PDG value
+    double gamma = categ == "JPsi" ? 92.9e-6 : 2.4952; // PDG value Z
 
     // Export fit parameters to file, to be used in other programs
     fstream fitparam_out( (outputPrefix + "_fitparam.txt").Data(), ios::out);
@@ -186,20 +214,32 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
 #endif
 
     // Display
-    TPaveText* info_text = new TPaveText(0.63, 0.65, 0.88, 0.8, "ndc");
+    TPaveText* info_text = new TPaveText(0.70, 0.52, 0.92, 0.82, "ndc");
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
-    info_text->SetFillColor(kWhite);
-    info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), nbEvents.c_str(), (stained ? "stained" : "unstained")));
+    info_text->SetTextAlign(32);
+    info_text->SetFillColorAlpha(kWhite, 0.5);
+    info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(),
+                    nbEvents.c_str(), (stained ? "stained" : "unstained")));
     info_text->AddText(Form("Nb bins: %d", binning));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(0),
+                                myVoigt->GetParameter(0)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(1),
+                                myVoigt->GetParameter(1)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(2),
+                                myVoigt->GetParameter(2)));
+    info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(3),
+                                myVoigt->GetParameter(3)));
 
-    TLegend* leg= new TLegend(0.20, 0.65, 0.45, 0.8);
+    TLegend* leg= new TLegend(0.15, 0.73, 0.35, 0.83);
     leg->SetTextSize(0.04);
+    leg->SetFillColorAlpha(kWhite, 0.5);
     leg->AddEntry(histInvMass, "Data", "F");
     leg->AddEntry(myVoigt, "Voigtian fit", "L");
 
     histInvMass->GetXaxis()->SetTitle("m_{ee} [GeV]");
-    histInvMass->GetYaxis()->SetTitle("Number of event / 0.2 GeV");
+    histInvMass->GetYaxis()->SetTitle(categ == "JPsi" ?
+        "Number of event / 0.01 GeV" : "Number of event / 0.2 GeV");
     TCanvas* canv = new TCanvas("canv",
         outputPrefix + "_InvMass", 800, 600);
     histInvMass->Draw();
