@@ -6,3 +6,5 @@ mc Z 200000 24	32	unstained	527.6 s
 data Z 50000 24	32	unstained	703.054 s
 mc Z 200000 24	32	unstained	528.399 s
 data Z 50000 24	32	unstained	701.183 s
+data JPsi 50000 24	32	unstained	617.808 s
+mc JPsi 50000 24	32	unstained	697.058 s

@@ -46,4 +46,12 @@ mc Z 10000 42	unstained	2.24634 s
 mc Z 10000 44	unstained	2.39272 s
 mc Z 10000 46	unstained	2.56962 s
 mc Z 10000 48	unstained	2.74242 s
-data Z 50000 24	unstained	5.57277 s
+data Z 50000 24	unstained	5.57277 smc Z 10000 24	stained	0	1.03061 s
+data Z 50000 24	stained	0	7.47508 s
+data Z 50000 24	unstained	10000	7.18343 s
+mc Z 10000 24	unstained	10000	0.921754 s
+mc Z 10000 24	unstained	10000	0.927364 s
+mc JPsi 50000 24	unstained	10000	0.294749 s
+data JPsi 50000 24	unstained	10000	0.26767 s
+data JPsi 50000 24	unstained	50000	0.268159 s
+mc JPsi 50000 24	unstained	50000	0.290657 s
