@@ -51,7 +51,7 @@ int main(int argc, char ** argv)
 
         inputfilename = "input_" + type + "_" + categ + "_" + nbEvents + ".list";
         outputfilename = "output/output_" + type + "_" + categ + "_" + nbEvents
-            + "_" + std::to_string(binning) + "_"
+            + "_" + std::string(argv[4]) + "_"
             + (stained ? "stained" : "unstained") + ".root";
     }
 

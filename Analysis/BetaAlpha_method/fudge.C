@@ -240,7 +240,8 @@ void fudge(string& categ, string& nbEvents, int binning)
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
     info_text->SetTextAlign(32);
-    info_text->SetFillColorAlpha(kWhite, 0.5);
+//    info_text->SetFillColorAlpha(kWhite, 0.5);
+    info_text->SetFillColor(kWhite);
     info_text->AddText(Form("data %s %s", categ.c_str(), nbEvents.c_str()));
     info_text->AddText(Form("Nb bins %d", binning));
     info_text->AddText(Form("%s: %.2f", myVoigt->GetParName(0),
@@ -254,7 +255,8 @@ void fudge(string& categ, string& nbEvents, int binning)
 
     TLegend* leg = new TLegend(0.15, 0.73, 0.40, 0.88);
     leg->SetTextSize(0.04);
-    leg->SetFillColorAlpha(kWhite, 0.5);
+//    leg->SetFillColorAlpha(kWhite, 0.5);
+    leg->SetFillColor(kWhite);
     leg->AddEntry(histInvMass, "Data", "F");
     leg->AddEntry(histInvMass_cor, "Cor. Data", "F");
     leg->AddEntry(myVoigt, "Voigtian fit on Cor. Data", "L");
