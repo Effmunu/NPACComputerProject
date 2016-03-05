@@ -70,7 +70,7 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     // Loop over the events
     //===============================================
     Long64_t nbytes = 0, nb = 0;
-    for (Long64_t jentry=0; jentry<nentries;jentry++)
+    for (Long64_t jentry=0; jentry<nbEntriesToRead; jentry++)
     {
         Long64_t ientry = LoadTree(jentry);
         if (ientry < 0) break;
@@ -221,7 +221,8 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
     info_text->SetTextAlign(32);
-    info_text->SetFillColorAlpha(kWhite, 0.5);
+//    info_text->SetFillColorAlpha(kWhite, 0.5);
+    info_text->SetFillColor(kWhite);
     info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(),
                     nbEvents.c_str(), (stained ? "stained" : "unstained")));
     info_text->AddText(Form("Nb bins: %d", binning));
@@ -236,7 +237,8 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents, int binning, 
                                 myVoigt->GetParameter(3)));
 
     TLegend* leg= new TLegend(0.15, 0.73, 0.35, 0.83);
-    leg->SetFillColorAlpha(kWhite, 0.5);
+//    leg->SetFillColorAlpha(kWhite, 0.5);
+    leg->SetFillColor(kWhite);
     leg->SetTextSize(0.04);
     leg->AddEntry(histInvMass, "Data", "F");
     leg->AddEntry(myVoigt, "Voigtian fit", "L");

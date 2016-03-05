@@ -52,14 +52,17 @@ int main(int argc, char ** argv)
 
         inputfilename = "input_" + type + "_" + categ + "_" + nbEvents + ".list";
         outputfilename = "output/output_" + type + "_" + categ + "_" + nbEvents
-        + "_" + std::to_string(binning) + "_"
+        + "_" + std::string(argv[4]) + "_"
+//        + "_" + std::to_string(binning) + "_"
         + (stained ? "stained" : "unstained") + ".root";
     }
     if (argc > 6) {
         nbEntriesToRead = std::atoi(argv[6]);
         outputfilename = "output/output_" + type + "_" + categ + "_" + nbEvents
-        + "_" + std::to_string(binning) + "_"
-        + (stained ? "stained" : "unstained") + std::to_string(nbEntriesToRead)
+//        + "_" + std::to_string(binning) + "_"
+        + "_" + std::string(argv[4]) + "_"
+//        + (stained ? "stained" : "unstained") + std::to_string(nbEntriesToRead)
+        + (stained ? "stained" : "unstained") + std::string(argv[6])
         + ".root";
     }
 
