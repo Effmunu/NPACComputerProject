@@ -220,7 +220,8 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
     info_text->SetBorderSize(0);
     info_text->SetTextSize(0.04);
     info_text->SetTextAlign(32);
-    info_text->SetFillColorAlpha(kWhite, 0.5);
+//    info_text->SetFillColorAlpha(kWhite, 0.5);
+    info_text->SetFillColor(kWhite);
     info_text->AddText(Form("%s %s %s, %s", type.c_str(), categ.c_str(), 
                     nbEvents.c_str(), (stained ? "stained" : "unstained")));
     info_text->AddText(Form("Nb bins #eta x #phi: %dx%d",
@@ -236,7 +237,8 @@ void AnaCalib::Loop(string& type, string& categ, string& nbEvents,
 
     TLegend* leg= new TLegend(0.15, 0.73, 0.35, 0.83);
     leg->SetTextSize(0.04);
-    leg->SetFillColorAlpha(kWhite, 0.5);
+//    leg->SetFillColorAlpha(kWhite, 0.5);
+    leg->SetFillColor(kWhite);
     leg->AddEntry(histInvMass, "Data", "F");
     leg->AddEntry(myVoigt, "Voigtian fit", "L");
 

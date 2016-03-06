@@ -53,7 +53,8 @@ int main(int argc, char ** argv)
 
         inputfilename = "input_" + type + "_" + categ + "_" + nbEvents + ".list";
         outputfilename = "output/output_" + type + "_" + categ + "_" + nbEvents
-        + "_" + std::to_string(binningEta) + "_" + std::to_string(binningPhi)
+//        + "_" + std::to_string(binningEta) + "_" + std::to_string(binningPhi)
+        + "_" + std::string(argv[4]) + "_" + std::string(argv[5])
         + "_" + (stained ? "stained" : "unstained") + ".root";
     }
 
